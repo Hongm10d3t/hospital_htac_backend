@@ -79,9 +79,9 @@ Tạo nền tảng thống nhất để người dùng và Agent theo dõi code 
 
 **Kết quả nghiệm thu**
 
-- [ ] Checkout mới chạy được lệnh build qua Maven Wrapper theo hướng dẫn.
-- [ ] Có hai file rule và bảng ánh xạ M01–M09 với package, dữ liệu sở hữu.
-- [ ] Agent có thể nhận một mã gói, xác định tài liệu đầu vào, file dự kiến sửa và tiêu chí hoàn tất.
+- [x] Checkout mới chạy được lệnh build qua Maven Wrapper theo hướng dẫn.
+- [x] Có hai file rule và bảng ánh xạ M01–M09 với package, dữ liệu sở hữu.
+- [x] Agent có thể nhận một mã gói, xác định tài liệu đầu vào, file dự kiến sửa và tiêu chí hoàn tất.
 
 ### N00.02 — Đối chiếu thiết kế và chốt quy tắc triển khai
 
@@ -98,9 +98,9 @@ Có đặc tả triển khai nhất quán với MySQL và bảo toàn ý nghĩa 
 
 **Kết quả nghiệm thu**
 
-- [ ] Có bảng ánh xạ kiểu dữ liệu nguồn sang MySQL, trong đó mọi trường `timestamptz` có quy ước lưu và chuyển đổi rõ ràng.
-- [ ] Mâu thuẫn FK được ghi kèm quyết định được xác nhận, còn quy tắc chưa rõ được gắn gói chịu ảnh hưởng và điều kiện phải chốt.
-- [ ] Quy ước ngày nghiệp vụ có ví dụ qua ranh giới ngày để dùng chung cho lịch, số thứ tự, báo cáo và dataset.
+- [x] Có bảng ánh xạ kiểu dữ liệu nguồn sang MySQL, trong đó mọi trường `timestamptz` có quy ước lưu và chuyển đổi rõ ràng.
+- [x] Mâu thuẫn FK được ghi kèm quyết định được xác nhận, còn quy tắc chưa rõ được gắn gói chịu ảnh hưởng và điều kiện phải chốt.
+- [x] Quy ước ngày nghiệp vụ có ví dụ qua ranh giới ngày để dùng chung cho lịch, số thứ tự, báo cáo và dataset.
 
 ### N00.03 — Schema MySQL và Flyway
 
@@ -116,8 +116,8 @@ Khởi tạo và nâng cấp database có thể lặp lại, có lịch sử phi
 
 **Kết quả nghiệm thu**
 
-- [ ] Database MySQL trống được tạo đầy đủ bằng Flyway, khởi động lần tiếp theo thành công với cùng schema.
-- [ ] Các trường hợp trùng username, mã nghiệp vụ, một tài khoản gắn nhiều patient, một lịch hẹn gắn nhiều lượt bị chặn đúng ràng buộc.
+- [x] Database MySQL trống được tạo đầy đủ bằng Flyway, khởi động lần tiếp theo thành công với cùng schema.
+- [x] Các trường hợp trùng username, mã nghiệp vụ, một tài khoản gắn nhiều patient, một lịch hẹn gắn nhiều lượt bị chặn đúng ràng buộc.
 - [ ] Có minh chứng chạy migration tiếp theo trên bản sao có dữ liệu mà các bản ghi hợp lệ vẫn đọc và liên kết được.
 
 ### N00.04 — Hợp đồng REST API và xử lý lỗi
@@ -134,9 +134,9 @@ Frontend và Agent có cùng quy ước khi gọi hoặc bổ sung API.
 
 **Kết quả nghiệm thu**
 
-- [ ] Có tài liệu quy ước API và một luồng mẫu thể hiện thành công, lỗi validation, lỗi quyền và lỗi nghiệp vụ.
-- [ ] Phản hồi không chứa entity tuần tự hóa ngoài kiểm soát, mật khẩu băm hoặc stack trace nội bộ.
-- [ ] Bộ lọc, trang vượt phạm vi và đầu vào sắp xếp không hợp lệ được xử lý xác định.
+- [x] Có tài liệu quy ước API và một luồng mẫu thể hiện thành công, lỗi validation, lỗi quyền và lỗi nghiệp vụ.
+- [x] Phản hồi không chứa entity tuần tự hóa ngoài kiểm soát, mật khẩu băm hoặc stack trace nội bộ.
+- [x] Bộ lọc, trang vượt phạm vi và đầu vào sắp xếp không hợp lệ được xử lý xác định.
 
 ### N00.05 — Cấu hình môi trường, giao dịch và audit
 
@@ -152,9 +152,9 @@ Các module có nền tảng chạy và ghi dữ liệu nhất quán giữa các
 
 **Kết quả nghiệm thu**
 
-- [ ] Chạy ứng dụng bằng cấu hình mẫu và biến môi trường, thông tin bí mật được cung cấp bên ngoài mã nguồn.
-- [ ] Một giao dịch mẫu lỗi giữa chừng rollback toàn bộ thay đổi liên quan.
-- [ ] Audit phản ánh đúng người và thời điểm thao tác, kiểm thử sử dụng database riêng có hướng dẫn tạo lại.
+- [x] Chạy ứng dụng bằng cấu hình mẫu và biến môi trường, thông tin bí mật được cung cấp bên ngoài mã nguồn.
+- [x] Một giao dịch mẫu lỗi giữa chừng rollback toàn bộ thay đổi liên quan.
+- [x] Audit phản ánh đúng người và thời điểm thao tác, kiểm thử sử dụng database riêng có hướng dẫn tạo lại.
 
 ## 4. M01 — Quản trị tài khoản và cấu hình
 
