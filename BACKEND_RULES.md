@@ -5,6 +5,7 @@
 - Java 25, Spring Boot 4.1.2, Maven Wrapper 3.3.4, MySQL 8.0.16+, Flyway, Spring Data JPA, Spring Security và Jakarta Validation.
 - Base package `com.htac_backend`. Module: `modules.administration` (M01), `clinicdirectory` (M02), `scheduling` (M03), `reception` (M04), `outpatient` (M05), `pharmacy` (M06), `procurement` (M07), `reporting` (M08), `forecasting` (M09). Hạ tầng dùng `config`, `security`, `shared.api`, `shared.audit`.
 - Tên Java dùng camelCase/PascalCase; bảng/cột, index, constraint dùng snake_case. Entity, repository, service, controller, DTO đặt trong module sở hữu. Enum lưu bằng tên chuỗi, không lưu ordinal.
+- Mỗi module có package `dto`, `entity`, `repository`, `service`. API controller đặt ở `controller`, cấu hình riêng của module ở `config`, thành phần xác thực riêng của module ở `security` khi cần. Enum gắn trực tiếp với entity có thể đặt trong `entity`. Hạ tầng dùng chung tiếp tục ở `com.htac_backend.security`, `config` và `shared`; module đọc/tổng hợp M08–M09 không tạo repository ghi khi chưa sở hữu bảng.
 
 ## Quyền sở hữu dữ liệu
 

@@ -172,9 +172,11 @@ Mọi API sử dụng cùng cơ chế xác thực và kiểm tra quyền.
 
 **Kết quả nghiệm thu**
 
-- [ ] Đăng nhập đúng/sai, tài khoản khóa, phiên hết hạn và đăng xuất đều có phản hồi đúng hợp đồng.
+- [x] Đăng nhập đúng/sai, tài khoản khóa, phiên hết hạn và đăng xuất đều có phản hồi đúng hợp đồng.
 - [ ] Người chưa đăng nhập chỉ sử dụng API công khai, từng role bị chặn ở API ngoài quyền.
-- [ ] Có kiểm thử riêng cho phiên đang tồn tại khi tài khoản bị khóa theo quy tắc đã chốt.
+- [x] Có kiểm thử riêng cho phiên đang tồn tại khi tài khoản bị khóa theo quy tắc đã chốt.
+
+Ghi nhận M01.01: cấu hình hiện tại từ chối mặc định mọi route chưa cấp quyền; kiểm thử đã xác nhận cả năm role bị chặn ở route riêng chưa mở. Tiêu chí thứ hai còn để mở đến M01.02, khi có API chỉ ADMIN được phép, để kiểm tra quyền khác biệt giữa các role trên API nghiệp vụ thật.
 
 ### M01.02 — Quản lý tài khoản nhân viên
 

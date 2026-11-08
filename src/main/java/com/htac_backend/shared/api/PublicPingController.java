@@ -13,7 +13,7 @@ public class PublicPingController {
 
     @GetMapping("/api/v1/public/health")
     public String health() {
-        return "Hệ thống đã sẵn sàng hoạt động thuy xinh gai qua";
+        return "Hệ thống đã sẵn sàng hoạt động";
     }
 
 }

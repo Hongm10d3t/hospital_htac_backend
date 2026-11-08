@@ -19,3 +19,13 @@ Linux/macOS: `./mvnw -DskipTests package && java -jar target/htac-backend-0.0.1-
 Để chạy integration test, tạo database **riêng, có thể bỏ đi**, rồi đặt `HIS_TEST_DB_URL` (ví dụ JDBC URL tới database kiểm thử), `HIS_TEST_DB_USERNAME`, `HIS_TEST_DB_PASSWORD`. Test mặc định được bỏ qua nếu không có URL; khi có URL, Flyway tạo schema và test kiểm tra ràng buộc/giao dịch trên MySQL thật. Không trỏ biến kiểm thử tới database nghiệp vụ.
 
 Schema được quản lý tại `src/main/resources/db/migration`. Không chỉnh `V1__initial_schema.sql` sau khi đã áp dụng ở bất kỳ môi trường dùng chung nào; tạo `V2__...sql` và thử trên bản sao có dữ liệu. `spring.jpa.hibernate.ddl-auto=validate` ngăn Hibernate tự sửa schema. Bản sao lưu và quy trình khôi phục thuộc N10.
+
+## Khởi tạo ADMIN đầu tiên (M01.01)
+
+Chạy **một lần** sau khi Flyway tạo schema. Cung cấp `HIS_BOOTSTRAP_ADMIN_USERNAME`, `HIS_BOOTSTRAP_ADMIN_PASSWORD`, `HIS_BOOTSTRAP_ADMIN_FULL_NAME`, `HIS_BOOTSTRAP_ADMIN_PHONE` qua môi trường riêng; không đưa giá trị vào source, tài liệu, dòng lệnh hay lịch sử shell. Mật khẩu cần 12–128 ký tự. Lệnh chạy trên Windows:
+
+`java -jar target\htac-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local --spring.main.web-application-type=none --his.bootstrap-admin.enabled=true`
+
+Lệnh chỉ tạo tài khoản khi chưa có ADMIN; mật khẩu được băm trước khi lưu. Sau khi chạy, xóa các biến bootstrap khỏi môi trường phiên làm việc và khởi động backend như bình thường. Không bật bootstrap ở phiên chạy web hoặc nhiều tiến trình cùng lúc. Nếu đã có ADMIN, lệnh không sửa tài khoản đó.
+
+Luồng gọi API bằng session, CSRF và hợp đồng lỗi được mô tả tại `API_M01_01_AUTH.md`. Frontend cần proxy cùng origin trong giai đoạn phát triển.

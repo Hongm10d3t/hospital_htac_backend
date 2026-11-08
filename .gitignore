@@ -38,5 +38,3 @@ build/
 !.env.example
 application-*.private.properties
 *.log
-
-docs
