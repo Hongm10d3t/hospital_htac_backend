@@ -76,6 +76,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/me").authenticated()
                 .requestMatchers("/api/v1/admin/staff-accounts", "/api/v1/admin/staff-accounts/**")
                 .hasRole("ADMIN")
+                .requestMatchers("/api/v1/reception/patients/registration-candidates",
+                        "/api/v1/reception/patients/*/registration-verification")
+                .hasRole("RECEPTIONIST")
                 .anyRequest().denyAll());
         http.securityContext(context -> context.securityContextRepository(contexts));
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfTokens));

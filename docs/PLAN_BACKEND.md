@@ -212,9 +212,11 @@ Bệnh nhân có tài khoản và truy cập đúng hồ sơ, bao gồm lịch s
 
 **Kết quả nghiệm thu**
 
-- [ ] Đăng ký luôn nhận role PATIENT và yêu cầu số điện thoại, dữ liệu role gửi thêm không làm tăng quyền.
-- [ ] Hồ sơ cũ hợp lệ được liên kết theo quy trình xác minh đã chốt, không tạo bản sao của hồ sơ đã xác định.
-- [ ] Yêu cầu đồng thời hoặc lỗi liên kết không tạo tài khoản/hồ sơ dở dang hay gắn hai tài khoản vào cùng patient.
+- [x] Đăng ký luôn nhận role PATIENT và yêu cầu số điện thoại, dữ liệu role gửi thêm không làm tăng quyền.
+- [x] Hồ sơ cũ hợp lệ được liên kết theo quy trình xác minh đã chốt, không tạo bản sao của hồ sơ đã xác định.
+- [x] Yêu cầu đồng thời hoặc lỗi liên kết không tạo tài khoản/hồ sơ dở dang hay gắn hai tài khoản vào cùng patient.
+
+Ghi nhận M01.03: đăng ký công khai trả 409 và không tạo tài khoản khi hồ sơ cần đối chiếu; RECEPTIONIST cấp mã một lần sau kiểm tra trực tiếp. `PatientRegistrationApiTest` kiểm tra CSRF, role; `PatientRegistrationDatabaseIntegrationTest` chạy trên MySQL riêng kiểm tra hồ sơ mới/cũ, mã hết hạn, rollback và hai yêu cầu cùng CCCD. Migration V2 lưu hash/hạn mã trên `patient`; API lịch sử khám sẽ được mở ở M04/M05.
 
 ### M01.04 — Thông tin cá nhân và mật khẩu
 

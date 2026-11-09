@@ -41,6 +41,8 @@ patient — Lưu hồ sơ định danh độc lập với tài khoản, phục v
 | date_of_birth | date | Ngày sinh. |
 | gender | varchar(10) | MALE, FEMALE hoặc OTHER. |
 | address | text | Địa chỉ liên hệ. Cho phép NULL. |
+| registration_token_hash | varchar(64) | SHA-256 của mã xác minh liên kết do tiếp đón cấp; cho phép NULL. |
+| registration_token_expires_at | timestamptz | Hạn của mã xác minh; cho phép NULL và cùng NULL/khác NULL với hash. |
 
 ### 3 Hồ sơ bác sĩ
 

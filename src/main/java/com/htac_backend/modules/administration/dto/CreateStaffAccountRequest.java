@@ -13,4 +13,6 @@ public record CreateStaffAccountRequest(
         @NotBlank @Size(max = 20) String phone,
         @NotNull AccountRole role,
         Long specialtyId) {
+    @Override
+    public String toString() { return "CreateStaffAccountRequest[redacted]"; }
 }

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -48,6 +49,9 @@ class ApiContractTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("SLOT_FULL"))
                 .andExpect(jsonPath("$.path").value("/sample/conflict"));
+        mvc.perform(get("/sample/lock-conflict"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DATA_CONFLICT"));
     }
 
     @RestController
@@ -57,6 +61,9 @@ class ApiContractTest {
 
         @GetMapping("/sample/conflict")
         String conflict() { throw new BusinessException("SLOT_FULL", "Khung khám đã hết chỗ"); }
+
+        @GetMapping("/sample/lock-conflict")
+        String lockConflict() { throw new CannotAcquireLockException("Concurrent update"); }
     }
 
     record SampleRequest(@NotBlank String reason) { }

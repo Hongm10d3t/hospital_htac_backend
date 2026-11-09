@@ -48,6 +48,7 @@ Chuỗi trạng thái và lý do được giữ đúng tên trong `DATABASE.md`;
 
 - Tài khoản đã có patient, doctor profile hoặc lịch sử nghiệp vụ không đổi role. Khóa/mở tài khoản không xóa lịch sử. M01 xử lý phiên đăng nhập đã bị khóa bằng cách kiểm tra `is_active` ở mỗi yêu cầu có xác thực.
 - Không tự liên kết hồ sơ cũ chỉ vì CCCD nhập khớp. M04 yêu cầu tiếp đón xác minh thêm định danh trước khi liên kết; nếu chưa đủ chứng cứ, đăng ký trả trạng thái cần đối chiếu. Tạo tài khoản và liên kết/tạo patient phải cùng transaction.
+- M01.03 dùng mã xác minh một lần do RECEPTIONIST cấp sau khi đối chiếu trực tiếp. Migration V2 thêm hash và hạn mã vào `patient`; mã gốc chỉ trả một lần, hết hạn sau 15 phút và xóa khi liên kết. Yêu cầu đăng ký cần đối chiếu trả 409 mà không tạo tài khoản. Hồ sơ thiếu CCCD được tiếp đón bổ sung trên bản ghi cũ trước khi cấp mã.
 - DOCTOR chỉ đọc lịch sử bệnh nhân đang có lượt được phân công; PATIENT chỉ đọc hồ sơ đã gắn tài khoản. Không mở API tìm lịch sử toàn viện theo role đơn thuần.
 - Phiếu `POSTED` là bất biến; `CANCELLED` chỉ áp dụng DRAFT. Sai sót sau ghi sổ được sửa bằng phiếu nghiệp vụ mới có tham chiếu/ghi chú, không đổi phiếu cũ. M06 phải công bố quy tắc tác động tồn cho từng type trước khi ghi sổ.
 - Thuốc bệnh nhân trả vào `QUARANTINE`; lượng trả không mở thêm quyền cấp theo đơn cũ. Nếu cần cấp thay thế, bác sĩ lập đơn bổ sung. Tổng DISPENSE của dòng đơn không vượt lượng kê, kể cả khi có trả.

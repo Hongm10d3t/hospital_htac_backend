@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -60,7 +61,8 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED", "Phương thức không được hỗ trợ", request, Map.of());
     }
 
-    @ExceptionHandler({BusinessException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler({BusinessException.class, DataIntegrityViolationException.class,
+            PessimisticLockingFailureException.class})
     ResponseEntity<ApiError> conflict(Exception exception, HttpServletRequest request) {
         String code = exception instanceof BusinessException business ? business.getCode() : "DATA_CONFLICT";
         String message = exception instanceof BusinessException ? exception.getMessage() : "Dữ liệu đã thay đổi hoặc bị trùng";
