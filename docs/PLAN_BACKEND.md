@@ -52,7 +52,7 @@ Thứ tự thực hiện đề xuất theo các mốc dưới đây. Có thể t
 
 | Dữ liệu                                                                           | Đơn vị quản lý chính | Cách phối hợp                                                                                      |
 | --------------------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------- |
-| `user_account`, `hospital_config`                                                 | M01                  | Module khác dùng định danh và quyền đã xác thực                                                    |
+| `user_account`, `hospital_config`, `account_password_reset_audit`                 | M01                  | Module khác dùng định danh và quyền đã xác thực; audit đặt lại mật khẩu thuộc M01                   |
 | `patient`                                                                         | M04                  | M01 gọi nghiệp vụ liên kết/tạo hồ sơ trong cùng giao dịch đăng ký                                  |
 | `specialty`, `clinic_room`, `doctor_profile`                                      | M02                  | M03 sử dụng để kiểm tra phân công                                                                  |
 | `clinic_slot`, `appointment`                                                      | M03                  | M04 dùng cơ chế kiểm tra sức chứa chung và xử lý lịch hẹn khi tiếp nhận                            |
@@ -232,9 +232,11 @@ Người dùng duy trì thông tin truy cập và liên hệ đúng phạm vi qu
 
 **Kết quả nghiệm thu**
 
-- [ ] Người dùng chỉ cập nhật tài khoản của mình qua API cá nhân, mật khẩu cũ/sai điều kiện được kiểm tra đúng.
-- [ ] ADMIN đặt lại mật khẩu có audit, API và log không trả hoặc ghi mật khẩu gốc.
-- [ ] Thay đổi tên hiển thị không vô tình ghi đè họ tên định danh của patient.
+- [x] Người dùng chỉ cập nhật tài khoản của mình qua API cá nhân, mật khẩu cũ/sai điều kiện được kiểm tra đúng.
+- [x] ADMIN đặt lại mật khẩu có audit, API và log không trả hoặc ghi mật khẩu gốc.
+- [x] Thay đổi tên hiển thị không vô tình ghi đè họ tên định danh của patient.
+
+Ghi nhận M01.04: `PersonalAccountApiTest` kiểm tra quyền và CSRF; `PersonalAccountDatabaseIntegrationTest` trên MySQL riêng kiểm tra mật khẩu cũ, điều kiện mật khẩu mới, audit người/phương thức đặt lại và tên định danh patient không đổi. `AuthenticationApiTest` xác nhận session cũ bị hủy sau khi `credential_version` tăng. Migration V3 thêm phiên bản thông tin xác thực và bảng audit bảo mật.
 
 ### M01.05 — Thông tin và cấu hình bệnh viện
 

@@ -20,6 +20,7 @@ public final class AccountPrincipal implements UserDetails, AuthenticatedActor, 
     private final String username;
     private final AccountRole role;
     private final boolean active;
+    private final long credentialVersion;
     private String passwordHash;
 
     public AccountPrincipal(UserAccount account) {
@@ -28,12 +29,14 @@ public final class AccountPrincipal implements UserDetails, AuthenticatedActor, 
         this.passwordHash = account.getPasswordHash();
         this.role = account.getRole();
         this.active = account.isActive();
+        this.credentialVersion = account.getCredentialVersion();
     }
 
     @Override
     public Long userId() { return userId; }
 
     public AccountRole role() { return role; }
+    public long credentialVersion() { return credentialVersion; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

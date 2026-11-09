@@ -30,7 +30,8 @@ public final class ActiveAccountFilter extends OncePerRequestFilter {
                 && authentication.getPrincipal() instanceof AccountPrincipal principal) {
             boolean valid = accounts.findById(principal.userId())
                     .map(account -> account.isActive() && account.getRole() == principal.role()
-                            && account.getUsername().equals(principal.getUsername()))
+                            && account.getUsername().equals(principal.getUsername())
+                            && account.getCredentialVersion() == principal.credentialVersion())
                     .orElse(false);
             if (!valid) {
                 SecurityContextHolder.clearContext();

@@ -103,6 +103,21 @@ class AuthenticationApiTest {
     }
 
     @Test
+    void existingSessionIsRejectedAfterPasswordVersionChanges() throws Exception {
+        UserAccount account = account(AccountRole.PHARMACIST, true);
+        stubAccount(account);
+        MockHttpSession authenticated = login();
+        UserAccount changed = account(AccountRole.PHARMACIST, true);
+        changed.changePasswordHash(encoder.encode(java.util.UUID.randomUUID().toString()));
+        when(accounts.findById(1L)).thenReturn(Optional.of(changed));
+
+        mvc.perform(get("/api/v1/auth/me").session(authenticated))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+        assertTrue(authenticated.isInvalid());
+    }
+
+    @Test
     void expiredSessionCannotReadIdentity() throws Exception {
         UserAccount account = account(AccountRole.PATIENT, true);
         stubAccount(account);

@@ -24,8 +24,19 @@ user_account — Lưu thông tin đăng nhập của bệnh nhân và nhân viê
 | phone | varchar(20) | Số điện thoại liên hệ. |
 | role | varchar(20) | ADMIN, RECEPTIONIST, DOCTOR, PHARMACIST hoặc PATIENT. |
 | is_active | boolean | Tài khoản được phép đăng nhập; mặc định true. |
+| credential_version | bigint | Phiên bản thông tin xác thực; tăng khi đổi/đặt lại mật khẩu để hủy phiên cũ. |
 
 Bệnh nhân tự đăng ký chỉ được gán PATIENT. ADMIN tạo tài khoản nhân viên. Khóa tài khoản không xóa dữ liệu khám đã liên kết.
+
+`account_password_reset_audit` — Audit bất biến cho lần ADMIN đặt lại mật khẩu sau khi đối chiếu danh tính trong bản demo. Bảng bổ sung ở migration V3, ngoài 18 bảng nghiệp vụ nền.
+
+| Tên trường | Kiểu dữ liệu | Mô tả ngắn |
+| --- | --- | --- |
+| id | bigint | Khóa chính tự tăng. |
+| target_user_id | bigint | FK đến user_account được đặt lại mật khẩu. |
+| admin_user_id | bigint | FK đến ADMIN thực hiện. |
+| verified_via | varchar(20) | IN_PERSON hoặc PHONE_CALLBACK. |
+| created_at | timestamptz | Thời điểm đặt lại. |
 
 ### 2 Hồ sơ bệnh nhân
 

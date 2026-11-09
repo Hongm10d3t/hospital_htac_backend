@@ -44,6 +44,6 @@ Yêu cầu CSRF header. Trả 204, hủy session, xóa cookie và thông tin xá
 
 ## Phân quyền hiện tại
 
-Chỉ `/api/v1/public/**` được gọi ẩn danh. Cả năm role được gọi `/api/v1/auth/me`; các route còn lại bị chặn mặc định. Khi bổ sung API nghiệp vụ ở gói sau, phải thêm quy tắc role và kiểm tra quyền đối tượng tại service tương ứng. Chức vụ trong hồ sơ bác sĩ không làm thay đổi role.
+Chỉ `/api/v1/public/**` được gọi ẩn danh. Cả năm role được gọi `/api/v1/auth/me`; các route chưa cấp quyền bị chặn mặc định. API quản trị nhân viên, đăng ký bệnh nhân và thông tin cá nhân bổ sung ở M01.02–M01.04 được mô tả trong tài liệu gói tương ứng. Chức vụ trong hồ sơ bác sĩ không làm thay đổi role.
 
 Lỗi tuân theo `API_CONVENTIONS.md`. Đăng nhập/đăng xuất không ghi dữ liệu nghiệp vụ; bootstrap ADMIN là thao tác riêng ngoài API. Dữ liệu audit lấy `userId` từ principal, không lấy từ request body.

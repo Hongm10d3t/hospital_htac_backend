@@ -38,7 +38,8 @@ class DatabaseIntegrationTest {
             "user_account", "patient", "doctor_profile", "specialty", "clinic_room", "clinic_slot",
             "appointment", "medical_visit", "prescription", "prescription_item", "medicine",
             "medicine_batch", "supplier", "stock_document", "stock_document_item",
-            "purchase_request", "purchase_request_item", "hospital_config");
+            "purchase_request", "purchase_request_item", "hospital_config",
+            "account_password_reset_audit");
 
     @DynamicPropertySource
     static void databaseProperties(DynamicPropertyRegistry registry) {

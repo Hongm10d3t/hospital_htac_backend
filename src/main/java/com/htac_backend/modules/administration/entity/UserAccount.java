@@ -36,6 +36,9 @@ public class UserAccount extends AuditedEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
+    @Column(name = "credential_version", nullable = false)
+    private long credentialVersion;
+
     protected UserAccount() { }
 
     public UserAccount(String username, String passwordHash, String fullName, String phone, AccountRole role) {
@@ -53,6 +56,7 @@ public class UserAccount extends AuditedEntity {
     public String getPhone() { return phone; }
     public AccountRole getRole() { return role; }
     public boolean isActive() { return active; }
+    public long getCredentialVersion() { return credentialVersion; }
 
     public void update(String username, String fullName, String phone) {
         this.username = username;
@@ -62,4 +66,8 @@ public class UserAccount extends AuditedEntity {
 
     public void changeRole(AccountRole role) { this.role = role; }
     public void setActive(boolean active) { this.active = active; }
+    public void changePasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.credentialVersion++;
+    }
 }

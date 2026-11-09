@@ -74,8 +74,10 @@ public class SecurityConfig {
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/auth/me").authenticated()
+                .requestMatchers("/api/v1/auth/change-password").authenticated()
                 .requestMatchers("/api/v1/admin/staff-accounts", "/api/v1/admin/staff-accounts/**")
                 .hasRole("ADMIN")
+                .requestMatchers("/api/v1/admin/accounts/*/password-reset").hasRole("ADMIN")
                 .requestMatchers("/api/v1/reception/patients/registration-candidates",
                         "/api/v1/reception/patients/*/registration-verification")
                 .hasRole("RECEPTIONIST")

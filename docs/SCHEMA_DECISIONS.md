@@ -2,7 +2,7 @@
 
 Ngày 07/11/2026. Tài liệu này chốt cách triển khai cho bản backend hiện tại từ `PHAM_VI_DU_AN.md` và `DATABASE.md`. Khi thay đổi quyết định, tạo migration mới và cập nhật hợp đồng module liên quan.
 
-## Ánh xạ 18 bảng
+## Ánh xạ 18 bảng nghiệp vụ nền
 
 | Bảng | Module ghi | Khóa và ràng buộc chính |
 | --- | --- | --- |
@@ -24,6 +24,8 @@ Ngày 07/11/2026. Tài liệu này chốt cách triển khai cho bản backend h
 | `purchase_request` | M07 | PK, UQ `request_code`, FK supplier/reviewer |
 | `purchase_request_item` | M07 | PK, UQ `(request_id, medicine_id)`, lượng dương |
 | `hospital_config` | M01 | PK chỉ nhận `id=1`; `advance_booking_days > 0` |
+
+Migration V3 bổ sung `credential_version` trên `user_account` và bảng audit bảo mật `account_password_reset_audit` do M01 sở hữu. Bảng audit này nằm ngoài 18 bảng nghiệp vụ nền; lưu người đặt lại, tài khoản đích, phương thức đối chiếu và thời điểm, không lưu mật khẩu. Thay đổi mật khẩu tăng phiên bản để vô hiệu hóa session cũ.
 
 Mỗi bảng có `created_at`, `updated_at` bắt buộc và `created_by`, `updated_by` cho phép NULL, FK đến `user_account.id`. Không xóa cứng tài khoản hoặc dữ liệu nghiệp vụ đã được tham chiếu. Cột `medical_visit.room_id` và `queue_date` là dữ liệu chốt lúc tiếp nhận để MySQL bảo vệ số thứ tự duy nhất theo phòng/ngày; M04/M05 phải đối chiếu `room_id` với `clinic_slot.room_id`. Số thứ tự VOIDED không tái sử dụng.
 

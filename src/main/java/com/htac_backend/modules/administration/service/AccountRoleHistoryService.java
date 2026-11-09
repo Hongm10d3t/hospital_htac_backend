@@ -16,7 +16,8 @@ public class AccountRoleHistoryService {
             "purchase_request", "purchase_request_item", "hospital_config");
     private static final List<String> DIRECT_LINKS = List.of(
             "patient:user_id", "doctor_profile:user_id", "appointment:confirmed_by",
-            "purchase_request:reviewed_by", "stock_document:posted_by");
+            "purchase_request:reviewed_by", "stock_document:posted_by",
+            "account_password_reset_audit:target_user_id", "account_password_reset_audit:admin_user_id");
 
     private final JdbcTemplate jdbc;
 

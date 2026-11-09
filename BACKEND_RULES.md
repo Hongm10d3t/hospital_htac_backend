@@ -11,7 +11,7 @@
 
 | Module | Bảng sở hữu |
 | --- | --- |
-| M01 | `user_account`, `hospital_config` |
+| M01 | `user_account`, `hospital_config`, `account_password_reset_audit` |
 | M02 | `specialty`, `clinic_room`, `doctor_profile` |
 | M03 | `clinic_slot`, `appointment` |
 | M04 | `patient` |
