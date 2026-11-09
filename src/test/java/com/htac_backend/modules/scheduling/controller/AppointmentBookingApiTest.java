@@ -7,6 +7,7 @@ import com.htac_backend.modules.scheduling.dto.PublicClinicSlotResponse;
 import com.htac_backend.modules.scheduling.entity.AppointmentStatus;
 import com.htac_backend.modules.scheduling.service.AppointmentBookingService;
 import com.htac_backend.modules.scheduling.service.PublicClinicSlotService;
+import com.htac_backend.modules.scheduling.service.PatientAppointmentService;
 import com.htac_backend.security.SecurityConfig;
 import com.htac_backend.shared.api.PageResponse;
 import java.time.Instant;
@@ -38,6 +39,7 @@ class AppointmentBookingApiTest {
     @MockitoBean UserAccountRepository accounts;
     @MockitoBean AppointmentBookingService booking;
     @MockitoBean PublicClinicSlotService publicSlots;
+    @MockitoBean PatientAppointmentService own;
 
     @Test
     void bookingRequiresPatientAndDoesNotAcceptPatientIdAsAuthority() throws Exception {
@@ -49,7 +51,8 @@ class AppointmentBookingApiTest {
                         .with(csrf()).contentType(MediaType.APPLICATION_JSON).content(request))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(booking);
-        when(booking.book(any())).thenReturn(new AppointmentResponse(17L, "A123", 12L,
+        when(booking.book(any())).thenReturn(new AppointmentResponse(17L, "A123", 12L, 3L, 2L,
+                Instant.parse("2030-01-01T01:00:00Z"), Instant.parse("2030-01-01T01:15:00Z"),
                 AppointmentStatus.PENDING, null, null, null));
         mvc.perform(post("/api/v1/appointments").with(user("patient").roles("PATIENT"))
                         .with(csrf()).contentType(MediaType.APPLICATION_JSON).content(request))
@@ -70,5 +73,20 @@ class AppointmentBookingApiTest {
                 .andExpect(jsonPath("$.items[0].available").value(1))
                 .andExpect(jsonPath("$.items[0].patientId").doesNotExist())
                 .andExpect(jsonPath("$.items[0].phone").doesNotExist());
+    }
+
+    @Test
+    void onlyPatientCanReadOwnAppointmentsAndResponseHasNoContactPhone() throws Exception {
+        mvc.perform(get("/api/v1/appointments/17"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/v1/appointments/17").with(user("doctor").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        when(own.ownGet(17L)).thenReturn(new AppointmentResponse(17L, "A123", 12L, 3L, 2L,
+                Instant.parse("2030-01-01T01:00:00Z"), Instant.parse("2030-01-01T01:15:00Z"),
+                AppointmentStatus.PENDING, null, null, null));
+        mvc.perform(get("/api/v1/appointments/17").with(user("patient").roles("PATIENT")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.phone").doesNotExist());
     }
 }

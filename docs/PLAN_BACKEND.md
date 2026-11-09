@@ -372,10 +372,10 @@ Bệnh nhân đặt được suất hợp lệ và theo dõi lịch cá nhân.
 **Kết quả nghiệm thu**
 
 - [x] PENDING và CONFIRMED đều giữ suất, lịch quá thời hạn hoặc CLOSED bị từ chối đặt mới.
-- [ ] Sửa patient ID trong yêu cầu không cho phép đặt hộ hoặc đọc lịch người khác.
+- [x] Sửa patient ID trong yêu cầu không cho phép đặt hộ hoặc đọc lịch người khác.
 - [x] Hai người tranh suất cuối chỉ có số lịch thành công đúng capacity, gửi lại yêu cầu có hành vi rõ ràng theo hợp đồng.
 
-Ghi nhận M03.03: `AppointmentBookingDatabaseIntegrationTest` trên MySQL riêng kiểm tra hồ sơ công khai, thời hạn đặt trước, PENDING/CONFIRMED giữ suất, khung đóng, gửi lặp và hai PATIENT tranh suất cuối; `AppointmentBookingApiTest` kiểm tra quyền PATIENT và không nhận patientId trong DTO. `mvnw.cmd test`: 70 kiểm thử thành công. Phần đọc lịch cá nhân và kiểm thử quyền đối tượng chi tiết sẽ hoàn tất ở M03.04.
+Ghi nhận M03.03: `AppointmentBookingDatabaseIntegrationTest` trên MySQL riêng kiểm tra hồ sơ công khai, thời hạn đặt trước, PENDING/CONFIRMED giữ suất, khung đóng, gửi lặp và hai PATIENT tranh suất cuối; `AppointmentBookingApiTest` kiểm tra quyền PATIENT và không nhận patientId trong DTO. M03.04 đã bổ sung đọc lịch cá nhân và kiểm thử ID của bệnh nhân khác trả 404.
 
 ### M03.04 — Xác nhận, theo dõi và kết thúc lịch hẹn
 
@@ -391,9 +391,11 @@ Trạng thái lịch hẹn phản ánh quá trình xử lý và kết nối đú
 
 **Kết quả nghiệm thu**
 
-- [ ] Xác nhận lưu đúng nhân viên/thời điểm, kết thúc NOT_COMPLETED yêu cầu lý do và thời điểm đóng.
-- [ ] Hẹn chưa được tiếp nhận không tạo medical_visit hoặc được tính vào lượt đến.
+- [x] Xác nhận lưu đúng nhân viên/thời điểm, kết thúc NOT_COMPLETED yêu cầu lý do và thời điểm đóng.
+- [x] Hẹn chưa được tiếp nhận không tạo medical_visit hoặc được tính vào lượt đến.
 - [ ] Cập nhật cuối từ quy trình khám và thao tác tiếp đón không ghi đè trạng thái trái quy tắc khi chạy đồng thời.
+
+Ghi nhận M03.04: `AppointmentLifecycleDatabaseIntegrationTest` trên MySQL riêng kiểm tra quyền lịch cá nhân, xác nhận, liên hệ từ tài khoản, hoàn tất theo lượt, NOT_COMPLETED và hai cập nhật kết quả cuối chạy đồng thời; `ReceptionAppointmentApiTest` kiểm tra role/CSRF. `mvnw.cmd test`: 75 kiểm thử thành công. Hợp đồng nội bộ `completeFromVisit` và `notCompleteFromVisit` đã có, nhưng tiêu chí cuối còn mở đến khi M05 có quy trình cập nhật lượt khám thật để kiểm thử xuyên module.
 
 ## 7. M04 — Hồ sơ bệnh nhân và tiếp đón
 

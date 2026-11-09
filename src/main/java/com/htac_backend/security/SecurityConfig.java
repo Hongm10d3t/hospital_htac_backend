@@ -90,6 +90,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/reception/patients/registration-candidates",
                         "/api/v1/reception/patients/*/registration-verification")
                 .hasRole("RECEPTIONIST")
+                .requestMatchers("/api/v1/reception/appointments", "/api/v1/reception/appointments/**")
+                .hasRole("RECEPTIONIST")
                 .anyRequest().denyAll());
         http.securityContext(context -> context.securityContextRepository(contexts));
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfTokens));

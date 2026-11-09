@@ -85,6 +85,6 @@ public class AppointmentBookingService {
         String code = "A" + UUID.randomUUID().toString().replace("-", "").substring(0, 24);
         Appointment created = appointments.saveAndFlush(new Appointment(code, patientId, slot.getId(),
                 request.reason().trim()));
-        return AppointmentResponse.from(created);
+        return AppointmentResponse.from(created, slot);
     }
 }

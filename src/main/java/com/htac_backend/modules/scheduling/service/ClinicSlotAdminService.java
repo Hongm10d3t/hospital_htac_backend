@@ -66,9 +66,9 @@ public class ClinicSlotAdminService {
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public ClinicSlotResponse update(Long id, UpdateClinicSlotRequest request) {
-        ClinicSlot initial = slots.findById(id)
+        var assignment = slots.findAssignmentIds(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy khung khám"));
-        assignments.requireForNewSlot(initial.getDoctorId(), initial.getRoomId());
+        assignments.requireForNewSlot(assignment.doctorId(), assignment.roomId());
         ClinicSlot slot = slots.findByIdForUpdate(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy khung khám"));
         Instant start = request.startAt().toInstant();
