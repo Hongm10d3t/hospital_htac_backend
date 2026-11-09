@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,5 +59,28 @@ class ClinicSlotAdminApiTest {
                         .content("{\"roomId\":0,\"doctorId\":2,\"capacity\":0}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void updateAndCloseRequireAdminAndCsrf() throws Exception {
+        mvc.perform(put("/api/v1/admin/clinic-slots/11")
+                        .with(user("admin").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/v1/admin/clinic-slots/11/close")
+                        .with(user("doctor").roles("DOCTOR")).with(csrf()))
+                .andExpect(status().isForbidden());
+        when(slots.update(any(), any())).thenReturn(new ClinicSlotResponse(11L, 1L, 2L,
+                Instant.parse("2030-01-01T01:00:00Z"), Instant.parse("2030-01-01T01:15:00Z"),
+                3, ClinicSlotStatus.OPEN));
+        mvc.perform(put("/api/v1/admin/clinic-slots/11")
+                        .with(user("admin").roles("ADMIN")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"startAt\":\"2030-01-01T08:00:00+07:00\",\"endAt\":\"2030-01-01T08:15:00+07:00\",\"capacity\":3}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.capacity").value(3));
+        mvc.perform(post("/api/v1/admin/clinic-slots/11/close")
+                        .with(user("admin").roles("ADMIN")).with(csrf()))
+                .andExpect(status().isNoContent());
     }
 }

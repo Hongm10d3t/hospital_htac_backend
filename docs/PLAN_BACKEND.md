@@ -351,9 +351,11 @@ Các luồng vào hệ thống sử dụng cùng một giới hạn tiếp nhậ
 
 **Kết quả nghiệm thu**
 
-- [ ] Đóng khung không xóa lịch hẹn, sửa khung có lượt thực tế bị từ chối.
-- [ ] Ví dụ capacity 2, một hẹn đang giữ suất và một lượt trực tiếp thì hệ thống báo hết chỗ. Tiếp nhận người có hẹn không tính họ thêm lần nữa.
-- [ ] Quy tắc xử lý sức chứa khi hủy hẹn, lượt NOT_COMPLETED hoặc VOIDED được ghi rõ và có ca kiểm tra tương ứng.
+- [x] Đóng khung không xóa lịch hẹn, sửa khung có lượt thực tế bị từ chối.
+- [x] Ví dụ capacity 2, một hẹn đang giữ suất và một lượt trực tiếp thì hệ thống báo hết chỗ. Tiếp nhận người có hẹn không tính họ thêm lần nữa.
+- [x] Quy tắc xử lý sức chứa khi hủy hẹn, lượt NOT_COMPLETED hoặc VOIDED được ghi rõ và có ca kiểm tra tương ứng.
+
+Ghi nhận M03.02: `SlotCapacityDatabaseIntegrationTest` trên MySQL riêng kiểm tra khung đóng giữ hẹn, sửa khung có hẹn/lượt, công thức sức chứa với hẹn đang giữ, lượt trực tiếp, hẹn chuyển thành lượt, NOT_COMPLETED và VOIDED. `ClinicSlotAdminApiTest` xác nhận quyền cập nhật/đóng khung và CSRF. `mvnw.cmd test`: 66 kiểm thử thành công. `SlotCapacityService` là hợp đồng chung cho M03.03 và M04/M05; kiểm thử xuyên module tiếp đón thật phụ thuộc M04.
 
 ### M03.03 — Tra cứu lịch và đặt khám cho bản thân
 
