@@ -19,4 +19,10 @@ public class ClinicSlotReferenceService {
         return Boolean.TRUE.equals(jdbc.queryForObject(
                 "SELECT EXISTS(SELECT 1 FROM clinic_slot WHERE room_id = ?)", Boolean.class, roomId));
     }
+
+    @Transactional(readOnly = true, propagation = Propagation.MANDATORY)
+    public boolean doctorHasSlots(Long doctorUserId) {
+        return Boolean.TRUE.equals(jdbc.queryForObject(
+                "SELECT EXISTS(SELECT 1 FROM clinic_slot WHERE doctor_id = ?)", Boolean.class, doctorUserId));
+    }
 }

@@ -292,8 +292,10 @@ Mỗi bác sĩ có hồ sơ chuyên môn dùng được cho phân lịch và hi�
 
 **Kết quả nghiệm thu**
 
-- [ ] Mỗi tài khoản bác sĩ có tối đa một hồ sơ, tài khoản khác role bị từ chối liên kết.
-- [ ] Năm bắt đầu hành nghề và dữ liệu chuyên khoa được validation, chức vụ hiển thị không làm thay đổi quyền hệ thống.
+- [x] Mỗi tài khoản bác sĩ có tối đa một hồ sơ, tài khoản khác role bị từ chối liên kết.
+- [x] Năm bắt đầu hành nghề và dữ liệu chuyên khoa được validation, chức vụ hiển thị không làm thay đổi quyền hệ thống.
+
+Ghi nhận M02.02: `DoctorProfileDatabaseIntegrationTest` trên MySQL riêng xác nhận PK/FK, role DOCTOR, chuyên khoa hoạt động, năm hành nghề, chức vụ không đổi role và khóa đổi chuyên khoa sau khi có lịch; `DoctorProfileAdminApiTest` xác nhận quyền ADMIN, validation và DTO. `mvnw.cmd test`: 55 kiểm thử thành công.
 
 ### M02.03 — Công khai và tra cứu bác sĩ
 
