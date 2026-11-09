@@ -252,8 +252,10 @@ Thông tin cơ sở và chính sách đặt trước có một nguồn cấu hì
 
 **Kết quả nghiệm thu**
 
-- [ ] Chỉ ADMIN cập nhật cấu hình, thao tác đồng thời không tạo nhiều bản cấu hình cho một cơ sở.
+- [x] Chỉ ADMIN cập nhật cấu hình, thao tác đồng thời không tạo nhiều bản cấu hình cho một cơ sở.
 - [ ] Thay đổi thời hạn đặt trước ảnh hưởng đúng đến yêu cầu đặt mới, đầu vào không hợp lệ bị từ chối.
+
+Ghi nhận M01.05: `HospitalConfigApiTest` kiểm tra API công khai, quyền ADMIN và validation; `HospitalConfigDatabaseIntegrationTest` trên MySQL riêng kiểm tra tạo/cập nhật một bản ghi, hai ghi đầu đồng thời và chính sách đặt trước đổi từ 7 sang 14 ngày. `HospitalConfigService` công bố API đọc và kiểm tra khoảng ngày cho M03. Tiêu chí thứ hai còn mở đến khi M03 có API đặt hẹn thật để kiểm thử xuyên module; không dùng riêng test chính sách để chứng minh một yêu cầu đặt đã bị từ chối/chấp nhận.
 
 ## 5. M02 — Danh mục khám bệnh và hồ sơ bác sĩ
 

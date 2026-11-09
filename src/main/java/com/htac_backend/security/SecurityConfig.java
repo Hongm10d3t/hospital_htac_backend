@@ -78,6 +78,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/admin/staff-accounts", "/api/v1/admin/staff-accounts/**")
                 .hasRole("ADMIN")
                 .requestMatchers("/api/v1/admin/accounts/*/password-reset").hasRole("ADMIN")
+                .requestMatchers("/api/v1/admin/hospital-config").hasRole("ADMIN")
                 .requestMatchers("/api/v1/reception/patients/registration-candidates",
                         "/api/v1/reception/patients/*/registration-verification")
                 .hasRole("RECEPTIONIST")
