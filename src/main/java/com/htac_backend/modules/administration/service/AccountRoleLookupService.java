@@ -2,6 +2,7 @@ package com.htac_backend.modules.administration.service;
 
 import com.htac_backend.modules.administration.entity.AccountRole;
 import com.htac_backend.modules.administration.repository.UserAccountRepository;
+import com.htac_backend.shared.api.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,5 +24,14 @@ public class AccountRoleLookupService {
     public boolean hasActiveRole(Long accountId, AccountRole role) {
         return accounts.findById(accountId)
                 .map(account -> account.isActive() && account.getRole() == role).orElse(false);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void requireActiveRoleForUpdate(Long accountId, AccountRole role) {
+        boolean allowed = accounts.findByIdForUpdate(accountId)
+                .map(account -> account.isActive() && account.getRole() == role).orElse(false);
+        if (!allowed) {
+            throw new BusinessException("DOCTOR_INACTIVE", "Bác sĩ không còn hoạt động");
+        }
     }
 }

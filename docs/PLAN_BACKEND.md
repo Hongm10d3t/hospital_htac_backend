@@ -274,9 +274,9 @@ Có dữ liệu phân công khám và phân nhóm báo cáo ổn định.
 **Kết quả nghiệm thu**
 
 - [x] Mã trùng, chuyên khoa không tồn tại và chuyển chuyên khoa trái điều kiện bị từ chối.
-- [ ] Dữ liệu ngừng hoạt động vẫn tham chiếu được trong lịch sử và bị kiểm tra khi lập lịch mới.
+- [x] Dữ liệu ngừng hoạt động vẫn tham chiếu được trong lịch sử và bị kiểm tra khi lập lịch mới.
 
-Ghi nhận M02.01: `ClinicDirectoryAdminApiTest` kiểm tra quyền ADMIN và validation; `ClinicDirectoryDatabaseIntegrationTest` chạy trên MySQL riêng xác nhận mã trùng, chuyên khoa thiếu/ngừng hoạt động, đổi chuyên khoa phòng trước khi có slot và từ chối sau khi có slot. Phòng/chuyên khoa ngừng hoạt động vẫn đọc được; `ClinicDirectoryLookupService` từ chối chúng cho phân công mới. Tiêu chí thứ hai còn mở đến khi M03 có API lập lịch thật để kiểm thử xuyên module.
+Ghi nhận M02.01: `ClinicDirectoryAdminApiTest` kiểm tra quyền ADMIN và validation; `ClinicDirectoryDatabaseIntegrationTest` chạy trên MySQL riêng xác nhận mã trùng, chuyên khoa thiếu/ngừng hoạt động, đổi chuyên khoa phòng trước khi có slot và từ chối sau khi có slot. Phòng/chuyên khoa ngừng hoạt động vẫn đọc được; `ClinicDirectoryLookupService` từ chối chúng cho phân công mới. M03.01 đã kiểm thử qua service lập lịch thật: phòng ngừng hoạt động bị từ chối, slot cũ vẫn tồn tại.
 
 ### M02.02 — Hồ sơ chuyên môn bác sĩ
 
@@ -331,9 +331,11 @@ Có lịch khám khả thi để tiếp nhận lịch hẹn và bệnh nhân tr�
 
 **Kết quả nghiệm thu**
 
-- [ ] Tạo theo buổi sinh đúng số khung và khoảng thời gian, khung liền kề được xử lý theo quy ước đã ghi.
-- [ ] Lịch chồng phòng/bác sĩ, sai chuyên khoa hoặc dữ liệu không hoạt động bị chặn.
-- [ ] Tạo đồng thời không sinh lịch trùng, lỗi một phần của lô tạo được xử lý theo hợp đồng transaction đã chọn.
+- [x] Tạo theo buổi sinh đúng số khung và khoảng thời gian, khung liền kề được xử lý theo quy ước đã ghi.
+- [x] Lịch chồng phòng/bác sĩ, sai chuyên khoa hoặc dữ liệu không hoạt động bị chặn.
+- [x] Tạo đồng thời không sinh lịch trùng, lỗi một phần của lô tạo được xử lý theo hợp đồng transaction đã chọn.
+
+Ghi nhận M03.01: `ClinicSlotAdminApiTest` kiểm tra quyền ADMIN, CSRF và validation; `ClinicSlotDatabaseIntegrationTest` trên MySQL riêng kiểm tra lô hai ngày, khung liền kề, giao giờ theo bác sĩ/phòng, sai chuyên khoa, phòng ngừng hoạt động, lô có lỗi không ghi dở và hai yêu cầu đồng thời chỉ tạo một slot. `mvnw.cmd test`: 63 kiểm thử thành công.
 
 ### M03.02 — Điều chỉnh, đóng khung và sức chứa dùng chung
 
