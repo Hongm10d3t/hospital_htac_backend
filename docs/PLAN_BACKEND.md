@@ -173,10 +173,10 @@ Mọi API sử dụng cùng cơ chế xác thực và kiểm tra quyền.
 **Kết quả nghiệm thu**
 
 - [x] Đăng nhập đúng/sai, tài khoản khóa, phiên hết hạn và đăng xuất đều có phản hồi đúng hợp đồng.
-- [ ] Người chưa đăng nhập chỉ sử dụng API công khai, từng role bị chặn ở API ngoài quyền.
+- [x] Người chưa đăng nhập chỉ sử dụng API công khai, từng role bị chặn ở API ngoài quyền.
 - [x] Có kiểm thử riêng cho phiên đang tồn tại khi tài khoản bị khóa theo quy tắc đã chốt.
 
-Ghi nhận M01.01: cấu hình hiện tại từ chối mặc định mọi route chưa cấp quyền; kiểm thử đã xác nhận cả năm role bị chặn ở route riêng chưa mở. Tiêu chí thứ hai còn để mở đến M01.02, khi có API chỉ ADMIN được phép, để kiểm tra quyền khác biệt giữa các role trên API nghiệp vụ thật.
+Ghi nhận M01.01: cấu hình từ chối mặc định mọi route chưa cấp quyền. M01.02 bổ sung API nhân viên chỉ ADMIN được phép; kiểm thử API đã xác nhận người chưa đăng nhập và bốn role khác bị chặn.
 
 ### M01.02 — Quản lý tài khoản nhân viên
 
@@ -192,9 +192,11 @@ Cung cấp tài khoản đúng trách nhiệm, duy trì liên kết lịch sử 
 
 **Kết quả nghiệm thu**
 
-- [ ] Chỉ ADMIN thực hiện được thao tác quản trị nhân viên, dữ liệu tài khoản không hợp lệ bị từ chối.
-- [ ] Tạo bác sĩ thất bại ở bước hồ sơ thì tài khoản cũng được rollback.
-- [ ] Khóa tài khoản ngăn sử dụng hệ thống theo quy tắc phiên đã chốt và lịch sử nghiệp vụ vẫn tra cứu được bởi người có quyền.
+- [x] Chỉ ADMIN thực hiện được thao tác quản trị nhân viên, dữ liệu tài khoản không hợp lệ bị từ chối.
+- [x] Tạo bác sĩ thất bại ở bước hồ sơ thì tài khoản cũng được rollback.
+- [x] Khóa tài khoản ngăn sử dụng hệ thống theo quy tắc phiên đã chốt và lịch sử nghiệp vụ vẫn tra cứu được bởi người có quyền.
+
+Ghi nhận M01.02: `StaffAccountApiTest` kiểm tra 401/403/validation; `StaffAccountDatabaseIntegrationTest` chạy trên MySQL riêng, kiểm tra rollback khi chuyên khoa ngừng hoạt động, tạo hồ sơ bác sĩ, khóa/mở giữ hồ sơ và ADMIN vẫn tra cứu được tài khoản. Kiểm thử M01.01 xác nhận session bị hủy ở yêu cầu tiếp theo khi `is_active=false`. API tra cứu lịch sử lâm sàng thuộc các gói nghiệp vụ sau.
 
 ### M01.03 — Đăng ký tài khoản bệnh nhân
 

@@ -53,4 +53,13 @@ public class UserAccount extends AuditedEntity {
     public String getPhone() { return phone; }
     public AccountRole getRole() { return role; }
     public boolean isActive() { return active; }
+
+    public void update(String username, String fullName, String phone) {
+        this.username = username;
+        this.fullName = fullName;
+        this.phone = phone;
+    }
+
+    public void changeRole(AccountRole role) { this.role = role; }
+    public void setActive(boolean active) { this.active = active; }
 }

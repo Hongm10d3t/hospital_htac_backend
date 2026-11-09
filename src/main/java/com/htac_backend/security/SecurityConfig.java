@@ -74,6 +74,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/auth/me").authenticated()
+                .requestMatchers("/api/v1/admin/staff-accounts", "/api/v1/admin/staff-accounts/**")
+                .hasRole("ADMIN")
                 .anyRequest().denyAll());
         http.securityContext(context -> context.securityContextRepository(contexts));
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfTokens));
