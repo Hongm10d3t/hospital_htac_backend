@@ -22,6 +22,18 @@ public class Specialty extends AuditedEntity {
 
     protected Specialty() { }
 
+    public Specialty(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
     public Long getId() { return id; }
+    public String getCode() { return code; }
+    public String getName() { return name; }
     public boolean isActive() { return active; }
+    public void update(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+    public void setActive(boolean active) { this.active = active; }
 }

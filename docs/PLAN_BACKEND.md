@@ -273,8 +273,10 @@ Có dữ liệu phân công khám và phân nhóm báo cáo ổn định.
 
 **Kết quả nghiệm thu**
 
-- [ ] Mã trùng, chuyên khoa không tồn tại và chuyển chuyên khoa trái điều kiện bị từ chối.
+- [x] Mã trùng, chuyên khoa không tồn tại và chuyển chuyên khoa trái điều kiện bị từ chối.
 - [ ] Dữ liệu ngừng hoạt động vẫn tham chiếu được trong lịch sử và bị kiểm tra khi lập lịch mới.
+
+Ghi nhận M02.01: `ClinicDirectoryAdminApiTest` kiểm tra quyền ADMIN và validation; `ClinicDirectoryDatabaseIntegrationTest` chạy trên MySQL riêng xác nhận mã trùng, chuyên khoa thiếu/ngừng hoạt động, đổi chuyên khoa phòng trước khi có slot và từ chối sau khi có slot. Phòng/chuyên khoa ngừng hoạt động vẫn đọc được; `ClinicDirectoryLookupService` từ chối chúng cho phân công mới. Tiêu chí thứ hai còn mở đến khi M03 có API lập lịch thật để kiểm thử xuyên module.
 
 ### M02.02 — Hồ sơ chuyên môn bác sĩ
 
