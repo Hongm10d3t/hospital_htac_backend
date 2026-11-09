@@ -28,6 +28,7 @@ import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 @Service
 @PreAuthorize("hasRole('ADMIN')")
@@ -63,7 +64,7 @@ public class ClinicSlotAdminService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy khung khám")));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ClinicSlotResponse update(Long id, UpdateClinicSlotRequest request) {
         ClinicSlot initial = slots.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy khung khám"));

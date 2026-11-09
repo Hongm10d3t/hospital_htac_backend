@@ -11,4 +11,4 @@ ADMIN gọi `POST /api/v1/admin/doctor-profiles/{userId}/publish` hoặc `/unpub
 
 Không cần đăng nhập. Phản hồi là `DoctorPublicResponse`: `userId`, `fullName`, `specialtyId`, `specialtyName`, `avatarUrl`, `professionalTitle`, `position`, `practiceStartYear`, `introduction`, `clinicalExpertise`, `certifications`, `availableSlotsUrl`. Không có username, mật khẩu băm, số điện thoại hay dữ liệu tài khoản khác. Không cache phản hồi để thay đổi trạng thái hiển thị có hiệu lực ở yêu cầu tiếp theo.
 
-`availableSlotsUrl` có dạng `/api/v1/public/clinic-slots?doctorId={userId}`. Đây là hợp đồng liên kết dành cho M03.03; endpoint tra cứu lịch và xác nhận khung đang nhận đăng ký sẽ được triển khai trong M03.03. M02.03 chỉ cấp URL, chưa xác nhận có khung trống. M03 cần dùng cùng điều kiện hồ sơ công khai và trạng thái slot khi trả lịch. Không có migration mới.
+`availableSlotsUrl` có dạng `/api/v1/public/clinic-slots?doctorId={userId}`. M03.03 đã triển khai endpoint này; kết quả chỉ gồm khung tương lai OPEN còn chỗ và hồ sơ bác sĩ vẫn công khai, hoạt động. URL có thể trả danh sách rỗng khi bác sĩ chưa có khung phù hợp. Không có migration mới.

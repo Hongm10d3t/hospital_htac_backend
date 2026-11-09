@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 public interface PatientRepository extends JpaRepository<Patient, Long> {
     boolean existsByFullNameIgnoreCaseAndDateOfBirth(String fullName, LocalDate dateOfBirth);
     boolean existsByCitizenId(String citizenId);
+    Optional<Patient> findByUserId(Long userId);
     Page<Patient> findByCitizenId(String citizenId, Pageable pageable);
     Page<Patient> findByFullNameIgnoreCaseAndDateOfBirth(String fullName, LocalDate dateOfBirth,
                                                          Pageable pageable);

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     boolean existsBySlotId(Long slotId);
+    boolean existsByPatientIdAndSlotId(Long patientId, Long slotId);
 
     @Query("select appointment.id from Appointment appointment where appointment.slotId = :slotId "
             + "and appointment.status in (com.htac_backend.modules.scheduling.entity.AppointmentStatus.PENDING, "
