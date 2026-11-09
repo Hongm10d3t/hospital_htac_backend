@@ -57,4 +57,14 @@ public class DoctorProfileAdminController {
             @Valid @RequestBody UpdateDoctorProfileRequest body) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(profiles.update(userId, body));
     }
+
+    @PostMapping("/{userId}/publish")
+    public ResponseEntity<DoctorProfileAdminResponse> publish(@PathVariable Long userId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(profiles.setPublic(userId, true));
+    }
+
+    @PostMapping("/{userId}/unpublish")
+    public ResponseEntity<DoctorProfileAdminResponse> unpublish(@PathVariable Long userId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(profiles.setPublic(userId, false));
+    }
 }

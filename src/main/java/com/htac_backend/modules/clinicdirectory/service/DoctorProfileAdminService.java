@@ -28,13 +28,16 @@ public class DoctorProfileAdminService {
     private final SpecialtyRepository specialties;
     private final DoctorProfileCreationService creation;
     private final ClinicSlotReferenceService slots;
+    private final DoctorAssignmentLookupService assignment;
 
     public DoctorProfileAdminService(DoctorProfileRepository profiles, SpecialtyRepository specialties,
-            DoctorProfileCreationService creation, ClinicSlotReferenceService slots) {
+            DoctorProfileCreationService creation, ClinicSlotReferenceService slots,
+            DoctorAssignmentLookupService assignment) {
         this.profiles = profiles;
         this.specialties = specialties;
         this.creation = creation;
         this.slots = slots;
+        this.assignment = assignment;
     }
 
     @Transactional(readOnly = true)
@@ -82,6 +85,19 @@ public class DoctorProfileAdminService {
         profile.update(body.specialtyId(), blankToNull(body.avatarUrl()), blankToNull(body.professionalTitle()),
                 blankToNull(body.position()), body.practiceStartYear(), blankToNull(body.introduction()),
                 blankToNull(body.clinicalExpertise()), blankToNull(body.certifications()));
+        profiles.flush();
+        return DoctorProfileAdminResponse.from(profile);
+    }
+
+    @Transactional
+    public DoctorProfileAdminResponse setPublic(Long userId, boolean publicProfile) {
+        DoctorProfile profile = profiles.findByIdForUpdate(userId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy hồ sơ bác sĩ"));
+        if (publicProfile) {
+            // A deactivated doctor or specialty must never become publicly visible.
+            assignment.requireActiveDoctor(userId);
+        }
+        profile.setPublicProfile(publicProfile);
         profiles.flush();
         return DoctorProfileAdminResponse.from(profile);
     }

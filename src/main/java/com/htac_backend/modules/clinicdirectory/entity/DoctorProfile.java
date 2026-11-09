@@ -47,6 +47,7 @@ public class DoctorProfile extends AuditedEntity {
     public String getClinicalExpertise() { return clinicalExpertise; }
     public String getCertifications() { return certifications; }
     public boolean isPublicProfile() { return publicProfile; }
+    public void setPublicProfile(boolean publicProfile) { this.publicProfile = publicProfile; }
 
     public void update(Long specialtyId, String avatarUrl, String professionalTitle, String position,
             Short practiceStartYear, String introduction, String clinicalExpertise, String certifications) {

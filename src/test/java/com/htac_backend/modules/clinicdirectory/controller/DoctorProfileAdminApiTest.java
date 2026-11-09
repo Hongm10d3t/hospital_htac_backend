@@ -58,4 +58,19 @@ class DoctorProfileAdminApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
     }
+
+    @Test
+    void publishRequiresAdminAndCsrf() throws Exception {
+        mvc.perform(post("/api/v1/admin/doctor-profiles/42/publish"))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/v1/admin/doctor-profiles/42/publish")
+                        .with(user("doctor").roles("DOCTOR")).with(csrf()))
+                .andExpect(status().isForbidden());
+        when(profiles.setPublic(42L, true)).thenReturn(new DoctorProfileAdminResponse(42L, 5L,
+                null, "MD", null, null, null, null, null, true));
+        mvc.perform(post("/api/v1/admin/doctor-profiles/42/publish")
+                        .with(user("admin").roles("ADMIN")).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.publicProfile").value(true));
+    }
 }

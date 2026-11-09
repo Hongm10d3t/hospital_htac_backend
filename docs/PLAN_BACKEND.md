@@ -310,8 +310,10 @@ Bệnh nhân tìm được bác sĩ phù hợp để chuyển sang luồng đặ
 
 **Kết quả nghiệm thu**
 
-- [ ] Hồ sơ chưa công khai không xuất hiện trong danh sách hoặc truy cập chi tiết công khai.
-- [ ] Phản hồi không chứa mật khẩu, thông tin đăng nhập hoặc số điện thoại cá nhân, bộ lọc trả đúng hồ sơ.
+- [x] Hồ sơ chưa công khai không xuất hiện trong danh sách hoặc truy cập chi tiết công khai.
+- [x] Phản hồi không chứa mật khẩu, thông tin đăng nhập hoặc số điện thoại cá nhân, bộ lọc trả đúng hồ sơ.
+
+Ghi nhận M02.03: `DoctorPublicDatabaseIntegrationTest` trên MySQL riêng xác nhận bật/tắt công khai, lọc chuyên khoa, ẩn tài khoản/chuyên khoa không hoạt động; `DoctorPublicApiTest` xác nhận khách chưa đăng nhập truy cập được và DTO không có thông tin đăng nhập/số điện thoại. `mvnw.cmd test`: 59 kiểm thử thành công. `availableSlotsUrl` đã có hợp đồng URL; API lịch thực tế và xác nhận khung còn nhận đăng ký phụ thuộc M03.03.
 
 ## 6. M03 — Lịch khám và đặt hẹn
 
