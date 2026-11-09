@@ -1,6 +1,7 @@
 package com.htac_backend.modules.scheduling.service;
 
 import com.htac_backend.modules.administration.entity.AccountRole;
+import com.htac_backend.modules.administration.dto.UpsertHospitalConfigRequest;
 import com.htac_backend.modules.administration.entity.HospitalConfig;
 import com.htac_backend.modules.administration.entity.UserAccount;
 import com.htac_backend.modules.administration.repository.HospitalConfigRepository;
@@ -104,6 +105,15 @@ class AppointmentBookingDatabaseIntegrationTest {
         authenticate(first);
         assertEquals("SLOT_OUTSIDE_BOOKING_WINDOW", assertThrows(BusinessException.class, () ->
                 booking.book(new BookAppointmentRequest(outsideSlotId, "Checkup"))).getCode());
+        authenticateAdmin();
+        var currentConfig = configs.findById(1L).orElseThrow();
+        hospitalConfig.upsert(new UpsertHospitalConfigRequest(currentConfig.getName(),
+                currentConfig.getAddress(), currentConfig.getPhone(), currentConfig.getEmail(),
+                currentConfig.getLogoUrl(), currentConfig.getDescription(),
+                currentConfig.getAdvanceBookingDays() + 1));
+        authenticate(first);
+        assertEquals("PENDING", booking.book(new BookAppointmentRequest(outsideSlotId,
+                "Checkup after window update")).status().name());
         var created = booking.book(new BookAppointmentRequest(fixture.slotId(), "Checkup"));
         assertEquals("PENDING", created.status().name());
         assertEquals("APPOINTMENT_ALREADY_EXISTS", assertThrows(BusinessException.class, () ->
