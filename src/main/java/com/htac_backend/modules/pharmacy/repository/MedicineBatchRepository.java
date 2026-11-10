@@ -3,6 +3,8 @@ package com.htac_backend.modules.pharmacy.repository;
 import com.htac_backend.modules.pharmacy.entity.MedicineBatch;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
+import java.util.Collection;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +13,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MedicineBatchRepository extends JpaRepository<MedicineBatch, Long> {
+    List<MedicineBatch> findByMedicineIdIn(Collection<Long> medicineIds);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from MedicineBatch b join fetch b.medicine where b.id = :id")
     Optional<MedicineBatch> findByIdForUpdate(@Param("id") Long id);

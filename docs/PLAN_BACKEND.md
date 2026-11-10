@@ -640,7 +640,7 @@ Có một cơ chế ghi sổ đáng tin cậy cho mọi nghiệp vụ kho.
 - [x] Hai phiếu cạnh tranh cùng lô/vị trí/nhóm tồn không làm tồn âm, kể cả khi số dư được tính từ lịch sử phiếu.
 - [ ] Quy tắc hủy/sửa sai POSTED được chốt trước nghiệm thu, có kiểm tra tác động tới tồn, cấp phát và đề xuất nhập liên quan.
 
-Ghi nhận M06.03: `StockDocumentDatabaseIntegrationTest` trên MySQL riêng kiểm tra nháp, ghi sổ lặp, rollback nhiều dòng, khóa POSTED và hai phiếu cạnh tranh cùng lô; `StockDocumentApiTest` kiểm tra role/CSRF. Phần đối chiếu tác động của phiếu sửa sai tới cấp phát và đề xuất nhập sẽ kiểm tra khi các loại phiếu tương ứng có API. API: `API_M06_03_STOCK_LEDGER.md`. Không có migration mới.
+Ghi nhận M06.03: `StockDocumentDatabaseIntegrationTest` trên MySQL riêng kiểm tra nháp, ghi sổ lặp, rollback nhiều dòng, khóa POSTED và hai phiếu cạnh tranh cùng lô; `StockDocumentApiTest` kiểm tra role/CSRF. M06.06–M06.09 đối chiếu lượng cấp, trả và phiếu sửa sai qua cơ chế số dư chung. Tiêu chí tác động tới đề xuất nhập có liên kết còn mở đến M07.04, khi luồng duyệt và đối chiếu lượng nhận được triển khai. API: `API_M06_03_STOCK_LEDGER.md`. Không có migration mới.
 
 ### M06.04 — Tồn đầu kỳ và nhập kho
 
@@ -777,9 +777,11 @@ Dược sĩ có số tồn đối chiếu được để cấp phát và lập �
 
 **Kết quả nghiệm thu**
 
-- [ ] Bộ dữ liệu gồm nhập, chuyển, cấp, trả, hủy và điều chỉnh cho số dư đúng từng chiều.
-- [ ] Tồn khả dụng loại đúng lô khóa/hết hạn và cách ly, cảnh báo thiếu xét ngưỡng theo toàn viện.
-- [ ] Số dư chi tiết cộng lên khớp tổng hợp và truy được các phiếu tạo ra biến động.
+- [x] Bộ dữ liệu gồm nhập, chuyển, cấp, trả, hủy và điều chỉnh cho số dư đúng từng chiều.
+- [x] Tồn khả dụng loại đúng lô khóa/hết hạn và cách ly, cảnh báo thiếu xét ngưỡng theo toàn viện.
+- [x] Số dư chi tiết cộng lên khớp tổng hợp và truy được các phiếu tạo ra biến động.
+
+Ghi nhận M06.10: `InventoryDatabaseIntegrationTest` trên MySQL riêng tạo cùng bộ dữ liệu OPENING, RECEIPT, TRANSFER, DISPENSE, PATIENT_RETURN, SUPPLIER_RETURN, DISPOSAL và ADJUSTMENT; kiểm tra tổng vật lý/khả dụng, lô khóa/hết hạn/cách ly, ngưỡng thiếu toàn viện, cảnh báo hạn dùng, tổng chi tiết và phiếu biến động. `InventoryApiTest` kiểm tra role và phân trang. API: `API_M06_10_INVENTORY.md`; cấu hình `HIS_PHARMACY_EXPIRY_WARNING_DAYS` mặc định 30. Không có migration mới.
 
 ## 10. M07 — Đề xuất nhập thuốc
 
