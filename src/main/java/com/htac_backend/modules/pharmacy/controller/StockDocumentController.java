@@ -6,8 +6,10 @@ import com.htac_backend.modules.pharmacy.dto.ReceiptStockRequest;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
 import com.htac_backend.modules.pharmacy.dto.TransferStockRequest;
 import com.htac_backend.modules.pharmacy.dto.DispenseStockRequest;
+import com.htac_backend.modules.pharmacy.dto.PatientReturnRequest;
 import com.htac_backend.modules.pharmacy.service.InboundStockService;
 import com.htac_backend.modules.pharmacy.service.DispenseStockService;
+import com.htac_backend.modules.pharmacy.service.PatientReturnService;
 import com.htac_backend.modules.pharmacy.service.TransferStockService;
 import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import jakarta.validation.Valid;
@@ -27,13 +29,16 @@ public class StockDocumentController {
     private final InboundStockService inbound;
     private final TransferStockService transfers;
     private final DispenseStockService dispensing;
+    private final PatientReturnService patientReturns;
 
     public StockDocumentController(StockDocumentService documents, InboundStockService inbound,
-            TransferStockService transfers, DispenseStockService dispensing) {
+            TransferStockService transfers, DispenseStockService dispensing,
+            PatientReturnService patientReturns) {
         this.documents = documents;
         this.inbound = inbound;
         this.transfers = transfers;
         this.dispensing = dispensing;
+        this.patientReturns = patientReturns;
     }
 
     @PostMapping("/openings")
@@ -60,6 +65,14 @@ public class StockDocumentController {
     @PostMapping("/dispensations")
     public ResponseEntity<StockDocumentResponse> dispense(@Valid @RequestBody DispenseStockRequest body) {
         StockDocumentResponse created = dispensing.create(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/patient-returns")
+    public ResponseEntity<StockDocumentResponse> patientReturn(
+            @Valid @RequestBody PatientReturnRequest body) {
+        StockDocumentResponse created = patientReturns.create(body);
         return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
                 .body(created);
     }

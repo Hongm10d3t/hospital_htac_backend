@@ -32,7 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StockDocumentService {
-    private static final Set<String> ENABLED_TYPES = Set.of("OPENING", "RECEIPT", "TRANSFER", "DISPENSE");
+    private static final Set<String> ENABLED_TYPES = Set.of("OPENING", "RECEIPT", "TRANSFER",
+            "DISPENSE", "PATIENT_RETURN");
     private final StockDocumentRepository documents;
     private final StockDocumentItemRepository items;
     private final MedicineBatchRepository batches;
@@ -42,6 +43,7 @@ public class StockDocumentService {
     private final IssuedPrescriptionService prescriptions;
     private final DispensedQuantityService dispensed;
     private final PrescriptionDispensingStateService prescriptionState;
+    private final PatientReturnReferenceService returnReferences;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
 
@@ -50,6 +52,7 @@ public class StockDocumentService {
             StockBalanceService balances, SupplierRepository suppliers,
             MedicineBatchService batchRules, IssuedPrescriptionService prescriptions,
             DispensedQuantityService dispensed, PrescriptionDispensingStateService prescriptionState,
+            PatientReturnReferenceService returnReferences,
             CurrentPharmacistActor actor,
             AccountRoleLookupService accounts) {
         this.documents = documents;
@@ -61,6 +64,7 @@ public class StockDocumentService {
         this.prescriptions = prescriptions;
         this.dispensed = dispensed;
         this.prescriptionState = prescriptionState;
+        this.returnReferences = returnReferences;
         this.actor = actor;
         this.accounts = accounts;
     }
@@ -87,7 +91,8 @@ public class StockDocumentService {
             throw new BusinessException("STOCK_DOCUMENT_FINAL", "Phiếu đã hủy không thể ghi sổ");
         }
         IssuedPrescriptionSnapshot prescription = null;
-        if (document.getType().equals("DISPENSE")) {
+        if (document.getType().equals("DISPENSE")
+                || document.getType().equals("PATIENT_RETURN")) {
             if (document.getPrescriptionId() == null) {
                 throw new InvalidRequestException("Phiếu cấp thuốc thiếu đơn");
             }
@@ -106,7 +111,11 @@ public class StockDocumentService {
         List<StockDocumentItem> lines = items.findDetailsByDocumentId(id);
         validate(document, lines);
         if (prescription != null) {
-            validateDispense(document, lines, prescription);
+            if (document.getType().equals("DISPENSE")) {
+                validateDispense(document, lines, prescription);
+            } else {
+                validatePatientReturn(document, lines);
+            }
         }
         if (document.getType().equals("TRANSFER")) {
             boolean release = "QUARANTINE".equals(document.getStockBucket())
@@ -153,7 +162,7 @@ public class StockDocumentService {
         Instant postedAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
         document.post(actor.userId(), postedAt);
         documents.flush();
-        if (prescription != null) {
+        if (prescription != null && document.getType().equals("DISPENSE")) {
             Map<Long, BigDecimal> remaining = new HashMap<>();
             for (var line : prescription.items()) {
                 remaining.put(line.id(), line.quantity().subtract(dispensed.postedQuantity(line.id())));
@@ -203,7 +212,9 @@ public class StockDocumentService {
         if (!document.getType().equals("RECEIPT") && document.getSupplierId() != null) {
             throw new InvalidRequestException("Loại phiếu này không có nhà cung cấp");
         }
-        if ((document.getType().equals("DISPENSE") != (document.getPrescriptionId() != null))
+        boolean prescriptionType = document.getType().equals("DISPENSE")
+                || document.getType().equals("PATIENT_RETURN");
+        if ((prescriptionType != (document.getPrescriptionId() != null))
                 || document.getPurchaseRequestId() != null) {
             throw new InvalidRequestException("Loại phiếu này không gắn đơn hoặc đề xuất nhập");
         }
@@ -212,10 +223,17 @@ public class StockDocumentService {
                 || !document.getStockBucket().equals("AVAILABLE"))) {
             throw new InvalidRequestException("Chỉ cấp từ tồn khả dụng tại quầy");
         }
+        if (document.getType().equals("PATIENT_RETURN")
+                && (!document.getStockLocation().equals("COUNTER")
+                || !document.getStockBucket().equals("QUARANTINE")
+                || document.getNote() == null || document.getNote().isBlank())) {
+            throw new InvalidRequestException("Thuốc bệnh nhân trả phải vào quầy cách ly và có lý do");
+        }
         for (StockDocumentItem line : lines) {
             if (!validQuantity(line.getQuantity()) || line.getQuantity().signum() <= 0
-                    || (document.getType().equals("DISPENSE") != (line.getPrescriptionItemId() != null))
-                    || line.getSourceItemId() != null
+                    || (prescriptionType != (line.getPrescriptionItemId() != null))
+                    || (document.getType().equals("PATIENT_RETURN")
+                            != (line.getSourceItemId() != null))
                     || line.getBookQuantity() != null || line.getCountedQuantity() != null
                     || (line.getUnitCost() != null && (line.getUnitCost().signum() < 0
                     || line.getUnitCost().scale() > 2))) {
@@ -223,6 +241,30 @@ public class StockDocumentService {
             }
             if (!document.getType().equals("RECEIPT") && line.getUnitCost() != null) {
                 throw new InvalidRequestException("Chỉ phiếu nhập có giá nhập");
+            }
+        }
+    }
+
+    private void validatePatientReturn(StockDocument document, List<StockDocumentItem> lines) {
+        Map<Long, BigDecimal> bySource = new HashMap<>();
+        Map<Long, BigDecimal> original = new HashMap<>();
+        for (StockDocumentItem line : lines) {
+            if (line.getNote() == null || !(line.getNote().startsWith("Tình trạng: SEALED")
+                    || line.getNote().startsWith("Tình trạng: OPENED")
+                    || line.getNote().startsWith("Tình trạng: DAMAGED")
+                    || line.getNote().startsWith("Tình trạng: UNKNOWN"))) {
+                throw new InvalidRequestException("Cần tình trạng thuốc trả");
+            }
+            var source = returnReferences.requirePostedSource(line.getSourceItemId(),
+                    document.getPrescriptionId(), line.getPrescriptionItemId(), line.getBatch().getId());
+            original.put(source.id(), source.quantity());
+            bySource.merge(line.getSourceItemId(), line.getQuantity(), BigDecimal::add);
+        }
+        for (var entry : bySource.entrySet()) {
+            if (returnReferences.postedReturned(entry.getKey()).add(entry.getValue())
+                    .compareTo(original.get(entry.getKey())) > 0) {
+                throw new BusinessException("PATIENT_RETURN_EXCEEDS_DISPENSE",
+                        "Tổng thuốc trả vượt lượng đã cấp từ dòng gốc");
             }
         }
     }

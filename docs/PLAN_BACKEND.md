@@ -737,9 +737,11 @@ Truy nguyên thuốc trả và kiểm soát số lượng, tình trạng của t
 
 **Kết quả nghiệm thu**
 
-- [ ] Dòng gốc sai đơn/sai lô hoặc chưa ghi sổ cấp bị từ chối.
-- [ ] Hai yêu cầu trả đồng thời không làm tổng trả vượt lượng gốc.
-- [ ] POSTED làm tăng đúng tồn cách ly, tồn được xét cấp chỉ thay đổi sau nghiệp vụ xử lý phù hợp.
+- [x] Dòng gốc sai đơn/sai lô hoặc chưa ghi sổ cấp bị từ chối.
+- [x] Hai yêu cầu trả đồng thời không làm tổng trả vượt lượng gốc.
+- [x] POSTED làm tăng đúng tồn cách ly, tồn được xét cấp chỉ thay đổi sau nghiệp vụ xử lý phù hợp.
+
+Ghi nhận M06.08: `PatientReturnDatabaseIntegrationTest` trên MySQL riêng kiểm tra dòng cấp chưa POSTED, sai lô, trả vượt, hai phiếu trả cạnh tranh, trả nhiều đợt, cách ly và quyền cấp không được mở lại; `StockDocumentApiTest` kiểm tra role/CSRF/validation. API: `API_M06_08_PATIENT_RETURN.md`. Không có migration mới.
 
 ### M06.09 — Trả nhà cung cấp, hủy thuốc và kiểm kê
 
