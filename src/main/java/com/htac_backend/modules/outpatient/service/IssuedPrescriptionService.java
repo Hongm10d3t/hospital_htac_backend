@@ -40,7 +40,8 @@ public class IssuedPrescriptionService {
         var lines = items.findByPrescriptionIdOrderById(prescriptionId);
         var labels = medicines.labels(lines.stream().map(PrescriptionItem::getMedicineId).toList());
         return new IssuedPrescriptionSnapshot(prescriptionId, prescription.getVisitId(),
-                prescription.getDoctorId(), prescription.getIssuedAt(), lines.stream()
+                prescription.getDoctorId(), prescription.getIssuedAt(),
+                prescription.getDispensingCheckedAt(), lines.stream()
                 .map(line -> PrescriptionLineResponse.from(line, labels.get(line.getMedicineId()))).toList());
     }
 }

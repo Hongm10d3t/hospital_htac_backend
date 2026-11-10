@@ -50,6 +50,10 @@ public class Prescription extends AuditedEntity {
     public String getNote() { return note; }
     public Instant getDispensingCheckedAt() { return dispensingCheckedAt; }
 
+    public void markDispensingChecked(Instant checkedAt) {
+        this.dispensingCheckedAt = checkedAt;
+    }
+
     public void issue(Instant now) {
         status = PrescriptionStatus.ISSUED;
         issuedAt = now;

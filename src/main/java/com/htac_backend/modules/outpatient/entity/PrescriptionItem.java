@@ -46,4 +46,10 @@ public class PrescriptionItem extends AuditedEntity {
     public BigDecimal getUnfilledQuantity() { return unfilledQuantity; }
     public String getUnfilledReason() { return unfilledReason; }
     public String getUnfilledNote() { return unfilledNote; }
+
+    public void recordUnfilled(BigDecimal quantity, String reason, String note) {
+        this.unfilledQuantity = quantity;
+        this.unfilledReason = reason;
+        this.unfilledNote = note;
+    }
 }

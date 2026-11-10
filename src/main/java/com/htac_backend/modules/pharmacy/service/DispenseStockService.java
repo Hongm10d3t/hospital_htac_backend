@@ -53,11 +53,14 @@ public class DispenseStockService {
     public DispensingSnapshotResponse snapshot(Long prescriptionId) {
         requirePharmacist();
         var prescription = prescriptions.lockForDispensing(prescriptionId);
-        return new DispensingSnapshotResponse(prescriptionId, prescription.items().stream()
+        return new DispensingSnapshotResponse(prescriptionId,
+                prescription.dispensingCheckedAt(), prescription.dispensingCheckedAt() != null,
+                prescription.items().stream()
                 .map(line -> {
                     BigDecimal used = dispensed.postedQuantity(line.id());
                     return new DispensingLineResponse(line.id(), line.medicineId(), line.medicineName(),
-                            line.baseUnit(), line.quantity(), used, line.quantity().subtract(used));
+                            line.baseUnit(), line.quantity(), used, line.quantity().subtract(used),
+                            line.unfilledQuantity(), line.unfilledReason(), line.unfilledNote());
                 }).toList());
     }
 

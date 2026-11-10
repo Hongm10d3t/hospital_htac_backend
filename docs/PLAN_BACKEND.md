@@ -717,9 +717,11 @@ Phân biệt được tình trạng thiếu thuốc hiện tại với dữ li�
 
 **Kết quả nghiệm thu**
 
-- [ ] Lý do OTHER yêu cầu giải thích, lượng âm hoặc vượt giới hạn hợp lệ bị từ chối.
-- [ ] Hai lần cập nhật lượng chưa nhận 4 rồi 2 cho hiện trạng cuối bằng 2.
-- [ ] Đơn có lượng chưa nhận bằng 0 nhưng chưa có thời điểm kiểm tra vẫn thể hiện trạng thái chưa được dược sĩ xử lý.
+- [x] Lý do OTHER yêu cầu giải thích, lượng âm hoặc vượt giới hạn hợp lệ bị từ chối.
+- [x] Hai lần cập nhật lượng chưa nhận 4 rồi 2 cho hiện trạng cuối bằng 2.
+- [x] Đơn có lượng chưa nhận bằng 0 nhưng chưa có thời điểm kiểm tra vẫn thể hiện trạng thái chưa được dược sĩ xử lý.
+
+Ghi nhận M06.07: `UnfilledReviewDatabaseIntegrationTest` trên MySQL riêng kiểm tra OTHER thiếu ghi chú, lượng âm/vượt, cập nhật 4→2, đơn chưa kiểm tra với lượng 0, kiểm tra 0 và điều chỉnh khi cấp thêm; `StockDocumentApiTest` kiểm tra role/CSRF/validation. M05 sở hữu ghi các cột đơn thuốc qua `PrescriptionDispensingStateService`; M06 điều phối khóa đơn, số lượng cấp và giao dịch. API: `API_M06_07_UNFILLED.md`. Không có migration mới.
 
 ### M06.08 — Nhận thuốc bệnh nhân trả
 

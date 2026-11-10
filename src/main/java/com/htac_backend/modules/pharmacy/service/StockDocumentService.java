@@ -5,6 +5,7 @@ import com.htac_backend.modules.administration.service.AccountRoleLookupService;
 import com.htac_backend.modules.outpatient.dto.IssuedPrescriptionSnapshot;
 import com.htac_backend.modules.outpatient.dto.PrescriptionLineResponse;
 import com.htac_backend.modules.outpatient.service.IssuedPrescriptionService;
+import com.htac_backend.modules.outpatient.service.PrescriptionDispensingStateService;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
 import com.htac_backend.modules.pharmacy.entity.StockDocument;
 import com.htac_backend.modules.pharmacy.entity.StockDocumentItem;
@@ -40,6 +41,7 @@ public class StockDocumentService {
     private final MedicineBatchService batchRules;
     private final IssuedPrescriptionService prescriptions;
     private final DispensedQuantityService dispensed;
+    private final PrescriptionDispensingStateService prescriptionState;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
 
@@ -47,7 +49,8 @@ public class StockDocumentService {
             StockDocumentItemRepository items, MedicineBatchRepository batches,
             StockBalanceService balances, SupplierRepository suppliers,
             MedicineBatchService batchRules, IssuedPrescriptionService prescriptions,
-            DispensedQuantityService dispensed, CurrentPharmacistActor actor,
+            DispensedQuantityService dispensed, PrescriptionDispensingStateService prescriptionState,
+            CurrentPharmacistActor actor,
             AccountRoleLookupService accounts) {
         this.documents = documents;
         this.items = items;
@@ -57,6 +60,7 @@ public class StockDocumentService {
         this.batchRules = batchRules;
         this.prescriptions = prescriptions;
         this.dispensed = dispensed;
+        this.prescriptionState = prescriptionState;
         this.actor = actor;
         this.accounts = accounts;
     }
@@ -146,8 +150,16 @@ public class StockDocumentService {
                         "Tồn tại lô, điểm và nhóm không đủ để ghi sổ");
             }
         }
-        document.post(actor.userId(), Instant.now().truncatedTo(ChronoUnit.MICROS));
+        Instant postedAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
+        document.post(actor.userId(), postedAt);
         documents.flush();
+        if (prescription != null) {
+            Map<Long, BigDecimal> remaining = new HashMap<>();
+            for (var line : prescription.items()) {
+                remaining.put(line.id(), line.quantity().subtract(dispensed.postedQuantity(line.id())));
+            }
+            prescriptionState.reconcileAfterDispense(prescription.id(), remaining, postedAt);
+        }
         return StockDocumentResponse.from(document, lines);
     }
 

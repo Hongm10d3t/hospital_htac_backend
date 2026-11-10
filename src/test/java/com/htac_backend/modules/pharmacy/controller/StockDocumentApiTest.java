@@ -6,6 +6,7 @@ import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import com.htac_backend.modules.pharmacy.service.InboundStockService;
 import com.htac_backend.modules.pharmacy.service.TransferStockService;
 import com.htac_backend.modules.pharmacy.service.DispenseStockService;
+import com.htac_backend.modules.pharmacy.service.UnfilledReviewService;
 import com.htac_backend.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ class StockDocumentApiTest {
     @MockitoBean InboundStockService inbound;
     @MockitoBean TransferStockService transfers;
     @MockitoBean DispenseStockService dispensing;
+    @MockitoBean UnfilledReviewService reviews;
 
     @Test
     void postingRequiresPharmacistAndCsrf() throws Exception {
@@ -65,6 +67,10 @@ class StockDocumentApiTest {
         mvc.perform(get("/api/v1/pharmacy/prescriptions/1/dispensing")
                         .with(user("doctor").roles("DOCTOR")))
                 .andExpect(status().isForbidden());
-        verifyNoInteractions(documents, inbound, transfers, dispensing);
+        mvc.perform(post("/api/v1/pharmacy/prescriptions/1/dispensing-review")
+                        .with(user("pharmacist").roles("PHARMACIST")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(documents, inbound, transfers, dispensing, reviews);
     }
 }
