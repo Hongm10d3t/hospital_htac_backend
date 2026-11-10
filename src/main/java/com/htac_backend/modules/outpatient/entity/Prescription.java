@@ -61,4 +61,10 @@ public class Prescription extends AuditedEntity {
         status = PrescriptionStatus.CANCELLED;
         note = note == null ? "Lý do hủy: " + reason : note + "\nLý do hủy: " + reason;
     }
+
+    public boolean cancelledForReason(String reason) {
+        return status == PrescriptionStatus.CANCELLED && note != null
+                && (note.equals("Lý do hủy: " + reason)
+                        || note.endsWith("\nLý do hủy: " + reason));
+    }
 }

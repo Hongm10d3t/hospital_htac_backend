@@ -573,9 +573,11 @@ Ghi nhận M05.03: `DoctorPrescriptionDatabaseIntegrationTest` trên MySQL riên
 
 **Kết quả nghiệm thu**
 
-- [ ] Tạo đơn bổ sung giữ liên kết đúng lượt và bác sĩ, hủy thiếu lý do bị từ chối.
-- [ ] Nội dung đã làm căn cứ cấp phát được bảo vệ, các thao tác xóa/sửa trái điều kiện bị chặn.
+- [x] Tạo đơn bổ sung giữ liên kết đúng lượt và bác sĩ, hủy thiếu lý do bị từ chối.
+- [x] Nội dung đã làm căn cứ cấp phát được bảo vệ, các thao tác xóa/sửa trái điều kiện bị chặn.
 - [ ] Cạnh tranh giữa hủy đơn và ghi sổ cấp thuốc cho ra một trạng thái cuối hợp lệ, lượng kê và cấp đối chiếu được.
+
+Ghi nhận M05.04: `PrescriptionAmendmentDatabaseIntegrationTest` trên MySQL riêng kiểm tra sửa đơn DRAFT, chặn sửa ISSUED, tạo đơn bổ sung, hủy có lý do, chặn hủy khi có phiếu kho, và hợp đồng khóa đơn khi hủy cạnh tranh với giao dịch mô phỏng ghi phiếu POSTED. `DoctorPrescriptionApiTest` kiểm tra role, CSRF và validation. M05.02 từ chối NOT_COMPLETED khi còn đơn ISSUED. Tiêu chí đối chiếu lượng kê và lượng cấp còn mở đến khi M06 có luồng ghi sổ DISPENSE thật; bài kiểm thử hiện tại chỉ xác nhận điều kiện khóa và trạng thái. Không có migration mới.
 
 ## 9. M06 — Quản lý dược và kho thuốc
 

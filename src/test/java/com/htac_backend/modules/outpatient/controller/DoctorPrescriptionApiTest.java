@@ -3,6 +3,7 @@ package com.htac_backend.modules.outpatient.controller;
 import com.htac_backend.modules.administration.repository.UserAccountRepository;
 import com.htac_backend.modules.administration.service.DatabaseUserDetailsService;
 import com.htac_backend.modules.outpatient.service.DoctorPrescriptionService;
+import com.htac_backend.modules.outpatient.service.DoctorPrescriptionAmendmentService;
 import com.htac_backend.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DoctorPrescriptionController.class)
@@ -25,6 +27,7 @@ class DoctorPrescriptionApiTest {
     @Autowired MockMvc mvc;
     @MockitoBean UserAccountRepository accounts;
     @MockitoBean DoctorPrescriptionService prescriptions;
+    @MockitoBean DoctorPrescriptionAmendmentService amendments;
 
     @Test
     void onlyDoctorWithCsrfCanWriteAndInvalidItemsAreRejected() throws Exception {
@@ -40,11 +43,20 @@ class DoctorPrescriptionApiTest {
                         .with(user("doctor").roles("DOCTOR")).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content("{\"items\":[]}"))
                 .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/v1/doctor/prescriptions/1/cancel")
+                        .with(user("doctor").roles("DOCTOR")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\" \"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(put("/api/v1/doctor/prescriptions/1")
+                        .with(user("patient").roles("PATIENT")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"items\":[]}"))
+                .andExpect(status().isForbidden());
         mvc.perform(post("/api/v1/doctor/visits/1/prescriptions")
                         .with(user("doctor").roles("DOCTOR")).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"items\":[{\"medicineId\":1,\"quantity\":0,\"usageInstruction\":\"\"}]}"))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(prescriptions);
+        verifyNoInteractions(amendments);
     }
 }

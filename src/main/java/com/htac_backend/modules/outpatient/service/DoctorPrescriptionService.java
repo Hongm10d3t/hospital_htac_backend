@@ -20,10 +20,8 @@ import com.htac_backend.modules.scheduling.service.DoctorSlotReadService;
 import com.htac_backend.shared.api.BusinessException;
 import com.htac_backend.shared.api.InvalidRequestException;
 import com.htac_backend.shared.api.NotFoundException;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,7 +58,7 @@ public class DoctorPrescriptionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public PrescriptionResponse create(Long visitId, CreatePrescriptionRequest request) {
         Long doctorId = requireDoctor();
-        validateItems(request.items());
+        PrescriptionLineValidator.validate(request.items());
         MedicalVisit visit = lockAssignedVisit(visitId, doctorId);
         requirePrescribable(visit);
         activeMedicines.requireActive(request.items().stream().map(PrescriptionLineRequest::medicineId).toList());
@@ -144,22 +142,6 @@ public class DoctorPrescriptionService {
     private void requireOwn(Prescription prescription, Long doctorId) {
         if (!prescription.getDoctorId().equals(doctorId)) {
             throw new NotFoundException("Không tìm thấy đơn thuốc");
-        }
-    }
-
-    private void validateItems(List<PrescriptionLineRequest> lines) {
-        if (lines == null || lines.isEmpty() || lines.size() > 100) {
-            throw new InvalidRequestException("Đơn thuốc cần từ 1 đến 100 dòng thuốc");
-        }
-        var seen = new HashSet<Long>();
-        for (PrescriptionLineRequest line : lines) {
-            if (line == null || line.medicineId() == null || !seen.add(line.medicineId())
-                    || line.quantity() == null || line.quantity().compareTo(BigDecimal.ZERO) <= 0
-                    || line.quantity().precision() - line.quantity().scale() > 11
-                    || line.quantity().scale() > 3 || line.usageInstruction() == null
-                    || line.usageInstruction().isBlank() || line.usageInstruction().length() > 3000) {
-                throw new InvalidRequestException("Dòng thuốc không hợp lệ hoặc trùng thuốc");
-            }
         }
     }
 

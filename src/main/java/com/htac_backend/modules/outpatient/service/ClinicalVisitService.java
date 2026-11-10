@@ -7,6 +7,8 @@ import com.htac_backend.modules.outpatient.dto.UpdateClinicalVisitRequest;
 import com.htac_backend.modules.outpatient.entity.MedicalVisit;
 import com.htac_backend.modules.outpatient.entity.VisitStatus;
 import com.htac_backend.modules.outpatient.repository.MedicalVisitRepository;
+import com.htac_backend.modules.outpatient.repository.PrescriptionRepository;
+import com.htac_backend.modules.outpatient.entity.PrescriptionStatus;
 import com.htac_backend.modules.reception.service.ClinicalPatientIdentityService;
 import com.htac_backend.modules.scheduling.service.DoctorSlotReadService;
 import com.htac_backend.modules.scheduling.service.ReceptionAppointmentService;
@@ -32,16 +34,19 @@ public class ClinicalVisitService {
     private final MedicalVisitRepository visits;
     private final ClinicalPatientIdentityService patients;
     private final ReceptionAppointmentService appointments;
+    private final PrescriptionRepository prescriptions;
 
     public ClinicalVisitService(CurrentDoctorActor actor, AccountRoleLookupService accounts,
             DoctorSlotReadService slots, MedicalVisitRepository visits,
-            ClinicalPatientIdentityService patients, ReceptionAppointmentService appointments) {
+            ClinicalPatientIdentityService patients, ReceptionAppointmentService appointments,
+            PrescriptionRepository prescriptions) {
         this.actor = actor;
         this.accounts = accounts;
         this.slots = slots;
         this.visits = visits;
         this.patients = patients;
         this.appointments = appointments;
+        this.prescriptions = prescriptions;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -92,6 +97,10 @@ public class ClinicalVisitService {
         }
         if (visit.getStatus() != VisitStatus.IN_PROGRESS) {
             throw new BusinessException("VISIT_NOT_IN_PROGRESS", "Lượt chưa bắt đầu hoặc đã kết thúc");
+        }
+        if (prescriptions.existsByVisitIdAndStatus(visitId, PrescriptionStatus.ISSUED)) {
+            throw new BusinessException("ISSUED_PRESCRIPTION_EXISTS",
+                    "Cần xử lý đơn đã phát hành trước khi bỏ dở lượt");
         }
         visit.notComplete(cleaned);
         visits.flush();
