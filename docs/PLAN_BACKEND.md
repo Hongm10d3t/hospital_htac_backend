@@ -473,9 +473,11 @@ Danh sách chờ có thứ tự rõ ràng và dữ liệu lượt đến đượ
 
 **Kết quả nghiệm thu**
 
-- [ ] Tiếp nhận đồng thời trong cùng phòng/ngày không sinh số trùng, các phòng hoặc ngày khác có phạm vi số riêng.
-- [ ] NOT_COMPLETED và VOIDED yêu cầu lý do, tiếp đón không sửa nội dung chuyên môn.
-- [ ] Lượt đã phát sinh đơn hoặc phiếu kho được xử lý theo điều kiện đã chốt, thống kê vẫn tính NOT_COMPLETED và loại VOIDED.
+- [x] Tiếp nhận đồng thời trong cùng phòng/ngày không sinh số trùng, các phòng hoặc ngày khác có phạm vi số riêng.
+- [x] NOT_COMPLETED và VOIDED yêu cầu lý do, tiếp đón không sửa nội dung chuyên môn.
+- [x] Lượt đã phát sinh đơn hoặc phiếu kho được xử lý theo điều kiện đã chốt, thống kê vẫn tính NOT_COMPLETED và loại VOIDED.
+
+Ghi nhận M04.04: `ReceptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra hai khung cùng phòng cấp số đồng thời, số VOIDED không tái dùng, NOT_COMPLETED giữ lượt thực tế, VOIDED loại khỏi sức chứa, đồng bộ lịch hẹn, chặn VOIDED khi đã có đơn thuốc. `ReceptionVisitApiTest` kiểm tra lý do, role và CSRF. Phòng khác hoặc ngày khác dùng khóa phạm vi riêng nhờ bộ đếm MAX theo `(room_id, queue_date)`; ràng buộc UNIQUE trong V1 là lớp chặn cuối. Không có migration mới.
 
 ### M04.05 — Tra cứu lịch sử cá nhân
 

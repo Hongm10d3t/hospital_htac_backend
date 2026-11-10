@@ -3,6 +3,7 @@ package com.htac_backend.modules.reception.controller;
 import com.htac_backend.modules.administration.repository.UserAccountRepository;
 import com.htac_backend.modules.administration.service.DatabaseUserDetailsService;
 import com.htac_backend.modules.reception.service.ReceptionService;
+import com.htac_backend.modules.reception.service.ReceptionOutcomeService;
 import com.htac_backend.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ class ReceptionVisitApiTest {
     @Autowired MockMvc mvc;
     @MockitoBean UserAccountRepository accounts;
     @MockitoBean ReceptionService reception;
+    @MockitoBean ReceptionOutcomeService outcomes;
 
     @Test
     void roleCsrfAndRequestValidationAreEnforced() throws Exception {
@@ -39,6 +41,15 @@ class ReceptionVisitApiTest {
                         .with(user("reception").roles("RECEPTIONIST")).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/v1/reception/visits/7/void")
+                        .with(user("reception").roles("RECEPTIONIST")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"  \"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/v1/reception/visits/7/not-complete")
+                        .with(user("patient").roles("PATIENT")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"left\"}"))
+                .andExpect(status().isForbidden());
         verifyNoInteractions(reception);
+        verifyNoInteractions(outcomes);
     }
 }

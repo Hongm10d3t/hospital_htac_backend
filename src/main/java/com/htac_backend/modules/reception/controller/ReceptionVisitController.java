@@ -2,6 +2,8 @@ package com.htac_backend.modules.reception.controller;
 
 import com.htac_backend.modules.outpatient.dto.ReceptionVisit;
 import com.htac_backend.modules.reception.dto.DirectReceptionRequest;
+import com.htac_backend.modules.reception.dto.ReceptionOutcomeRequest;
+import com.htac_backend.modules.reception.service.ReceptionOutcomeService;
 import com.htac_backend.modules.reception.service.ReceptionService;
 import com.htac_backend.shared.api.PageQuery;
 import com.htac_backend.shared.api.PageResponse;
@@ -22,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/reception/visits")
 public class ReceptionVisitController {
     private final ReceptionService reception;
+    private final ReceptionOutcomeService outcomes;
 
-    public ReceptionVisitController(ReceptionService reception) {
+    public ReceptionVisitController(ReceptionService reception, ReceptionOutcomeService outcomes) {
         this.reception = reception;
+        this.outcomes = outcomes;
     }
 
     @PostMapping("/appointments/{appointmentId}")
@@ -45,5 +49,17 @@ public class ReceptionVisitController {
             @RequestParam(required = false) String sort) {
         return reception.waiting(date, roomId, slotId,
                 PageQuery.parse(page, size, sort, "queueNumber", Set.of("queueNumber", "id")));
+    }
+
+    @PostMapping("/{visitId}/not-complete")
+    public ReceptionVisit notComplete(@PathVariable Long visitId,
+            @Valid @RequestBody ReceptionOutcomeRequest request) {
+        return outcomes.notComplete(visitId, request.reason());
+    }
+
+    @PostMapping("/{visitId}/void")
+    public ReceptionVisit voidReception(@PathVariable Long visitId,
+            @Valid @RequestBody ReceptionOutcomeRequest request) {
+        return outcomes.voidReception(visitId, request.reason());
     }
 }

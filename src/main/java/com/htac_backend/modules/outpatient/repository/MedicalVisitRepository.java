@@ -15,6 +15,9 @@ import org.springframework.data.repository.query.Param;
 public interface MedicalVisitRepository extends JpaRepository<MedicalVisit, Long> {
     Optional<MedicalVisit> findByAppointmentId(Long appointmentId);
 
+    @Query("select visit.slotId from MedicalVisit visit where visit.id = :id")
+    Optional<Long> findSlotIdById(@Param("id") Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select visit from MedicalVisit visit where visit.id = :id")
     Optional<MedicalVisit> findByIdForUpdate(@Param("id") Long id);
