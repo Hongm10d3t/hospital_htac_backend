@@ -26,6 +26,7 @@ final class OutpatientTestFixture implements AutoCloseable {
     final UserAccount doctorA;
     final UserAccount doctorB;
     final UserAccount receptionist;
+    final UserAccount pharmacist;
     final long slotA;
     final long slotB;
     final long historicSlot;
@@ -50,6 +51,8 @@ final class OutpatientTestFixture implements AutoCloseable {
                 "Synthetic doctor B", "0000000000", AccountRole.DOCTOR));
         receptionist = accounts.saveAndFlush(new UserAccount("e" + tag, "{noop}unused",
                 "Synthetic receptionist", "0000000000", AccountRole.RECEPTIONIST));
+        pharmacist = accounts.saveAndFlush(new UserAccount("f" + tag, "{noop}unused",
+                "Synthetic pharmacist", "0000000000", AccountRole.PHARMACIST));
         jdbc.update("INSERT INTO doctor_profile (user_id, specialty_id) VALUES (?, ?), (?, ?)",
                 doctorA.getId(), specialtyId, doctorB.getId(), specialtyId);
         LocalDate today = LocalDate.now(ZONE);
@@ -81,6 +84,14 @@ final class OutpatientTestFixture implements AutoCloseable {
 
     long id(String sql, Object argument) {
         return jdbc.queryForObject(sql, Long.class, argument);
+    }
+
+    long medicine(String suffix, boolean active) {
+        String code = "m" + suffix + tag;
+        jdbc.update("INSERT INTO medicine (code, name, active_ingredient, strength, dosage_form, "
+                + "base_unit, is_active) VALUES (?, ?, 'Synthetic ingredient', '1 mg', 'tablet', 'tablet', ?)",
+                code, "Synthetic medicine " + suffix, active);
+        return id("SELECT id FROM medicine WHERE code = ?", code);
     }
 
     private long room(String suffix) {
@@ -133,10 +144,13 @@ final class OutpatientTestFixture implements AutoCloseable {
         jdbc.update("DELETE FROM patient WHERE id IN (?, ?)", patientA, patientB);
         jdbc.update("DELETE FROM clinic_slot WHERE id IN (?, ?, ?)", slotA, slotB, historicSlot);
         jdbc.update("DELETE FROM doctor_profile WHERE user_id IN (?, ?)", doctorA.getId(), doctorB.getId());
+        jdbc.update("DELETE FROM medicine WHERE code IN (?, ?, ?)", "m1" + tag, "m2" + tag,
+                "m3" + tag);
         jdbc.update("DELETE FROM clinic_room WHERE id IN (?, ?)", roomA, roomB);
         jdbc.update("DELETE FROM specialty WHERE id = ?", specialtyId);
         accounts.deleteById(doctorA.getId());
         accounts.deleteById(doctorB.getId());
         accounts.deleteById(receptionist.getId());
+        accounts.deleteById(pharmacist.getId());
     }
 }

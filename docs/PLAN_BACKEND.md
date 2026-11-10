@@ -553,9 +553,11 @@ Ghi nhận M05.02: `ClinicalVisitDatabaseIntegrationTest` trên MySQL riêng ki�
 
 **Kết quả nghiệm thu**
 
-- [ ] Đơn sai lượt/bác sĩ, dòng trùng thuốc hoặc lượng không hợp lệ bị chặn.
-- [ ] Chỉ đơn ISSUED xuất hiện trong luồng cấp phát hợp lệ, phát hành lặp không tạo thêm đơn.
+- [x] Đơn sai lượt/bác sĩ, dòng trùng thuốc hoặc lượng không hợp lệ bị chặn.
+- [x] Chỉ đơn ISSUED xuất hiện trong luồng cấp phát hợp lệ, phát hành lặp không tạo thêm đơn.
 - [ ] Lập hoặc phát hành đơn giữ nguyên số dư kho, số dư chỉ đổi qua phiếu kho hợp lệ.
+
+Ghi nhận M05.03: `DoctorPrescriptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra bác sĩ đúng lượt, thuốc hoạt động, dòng trùng/lượng sai, đơn DRAFT bị từ chối ở hợp đồng cấp phát, phát hành lặp/đồng thời giữ `issued_at`, và M05 không tạo phiếu kho. `DoctorPrescriptionApiTest` kiểm tra role, CSRF và validation. M06 cung cấp hợp đồng khóa thuốc hiện có; tiêu chí số dư kho chỉ được chốt khi M06 triển khai ghi sổ thật. Không có migration mới.
 
 ### M05.04 — Đơn bổ sung, hủy đơn và bảo vệ dữ liệu đã cấp
 
