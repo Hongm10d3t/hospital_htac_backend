@@ -32,18 +32,21 @@ public class StockDocumentService {
     private final MedicineBatchRepository batches;
     private final StockBalanceService balances;
     private final SupplierRepository suppliers;
+    private final MedicineBatchService batchRules;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
 
     public StockDocumentService(StockDocumentRepository documents,
             StockDocumentItemRepository items, MedicineBatchRepository batches,
-            StockBalanceService balances, SupplierRepository suppliers, CurrentPharmacistActor actor,
+            StockBalanceService balances, SupplierRepository suppliers,
+            MedicineBatchService batchRules, CurrentPharmacistActor actor,
             AccountRoleLookupService accounts) {
         this.documents = documents;
         this.items = items;
         this.batches = batches;
         this.balances = balances;
         this.suppliers = suppliers;
+        this.batchRules = batchRules;
         this.actor = actor;
         this.accounts = accounts;
     }
@@ -63,14 +66,12 @@ public class StockDocumentService {
         requirePharmacist();
         StockDocument document = documents.findByIdForUpdate(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phiếu kho"));
-        List<StockDocumentItem> lines = items.findDetailsByDocumentId(id);
         if (document.getStatus().equals("POSTED")) {
-            return StockDocumentResponse.from(document, lines);
+            return StockDocumentResponse.from(document, items.findDetailsByDocumentId(id));
         }
         if (!document.getStatus().equals("DRAFT")) {
             throw new BusinessException("STOCK_DOCUMENT_FINAL", "Phiếu đã hủy không thể ghi sổ");
         }
-        validate(document, lines);
         if (document.getType().equals("RECEIPT")) {
             var supplier = suppliers.findByIdForUpdate(document.getSupplierId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy nhà cung cấp"));
@@ -79,9 +80,31 @@ public class StockDocumentService {
             }
         }
         // One batch row coordinates all writers, including the first document for an empty balance.
-        lines.stream().map(line -> line.getBatch().getId()).distinct().sorted()
-                .forEach(batchId -> batches.findByIdForUpdate(batchId)
+        items.findBatchIdsByDocumentId(id).forEach(batchId -> batches.findByIdForUpdate(batchId)
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy lô thuốc")));
+        List<StockDocumentItem> lines = items.findDetailsByDocumentId(id);
+        validate(document, lines);
+        if (document.getType().equals("TRANSFER")) {
+            boolean release = "QUARANTINE".equals(document.getStockBucket())
+                    && "AVAILABLE".equals(document.getDestinationBucket());
+            boolean quarantine = "AVAILABLE".equals(document.getStockBucket())
+                    && "QUARANTINE".equals(document.getDestinationBucket());
+            if ((release && (document.getNote() == null
+                    || !document.getNote().startsWith(TransferStockService.RELEASE_PREFIX)
+                    || document.getNote().length() <= TransferStockService.RELEASE_PREFIX.length()))
+                    || (quarantine && (document.getNote() == null || document.getNote().isBlank()))) {
+                throw new InvalidRequestException("Chuyển nhóm tồn cần lý do và xác nhận xử lý");
+            }
+            if (release) {
+                var today = batchRules.businessDate();
+                for (StockDocumentItem line : lines) {
+                    if (!batchRules.isDispensable(line.getBatch(), today)) {
+                        throw new BusinessException("BATCH_NOT_RELEASABLE",
+                                "Lô bị khóa, hết hạn hoặc thuốc ngừng hoạt động");
+                    }
+                }
+            }
+        }
         Map<StockPosition, BigDecimal> deltas = new HashMap<>();
         for (StockDocumentItem line : lines) {
             StockPosition source = new StockPosition(line.getBatch().getId(),

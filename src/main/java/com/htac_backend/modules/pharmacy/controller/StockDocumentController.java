@@ -4,7 +4,9 @@ import com.htac_backend.modules.pharmacy.dto.CancelStockDocumentRequest;
 import com.htac_backend.modules.pharmacy.dto.OpeningStockRequest;
 import com.htac_backend.modules.pharmacy.dto.ReceiptStockRequest;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
+import com.htac_backend.modules.pharmacy.dto.TransferStockRequest;
 import com.htac_backend.modules.pharmacy.service.InboundStockService;
+import com.htac_backend.modules.pharmacy.service.TransferStockService;
 import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -21,10 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class StockDocumentController {
     private final StockDocumentService documents;
     private final InboundStockService inbound;
+    private final TransferStockService transfers;
 
-    public StockDocumentController(StockDocumentService documents, InboundStockService inbound) {
+    public StockDocumentController(StockDocumentService documents, InboundStockService inbound,
+            TransferStockService transfers) {
         this.documents = documents;
         this.inbound = inbound;
+        this.transfers = transfers;
     }
 
     @PostMapping("/openings")
@@ -37,6 +42,13 @@ public class StockDocumentController {
     @PostMapping("/receipts")
     public ResponseEntity<StockDocumentResponse> receipt(@Valid @RequestBody ReceiptStockRequest body) {
         StockDocumentResponse created = inbound.receipt(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/transfers")
+    public ResponseEntity<StockDocumentResponse> transfer(@Valid @RequestBody TransferStockRequest body) {
+        StockDocumentResponse created = transfers.create(body);
         return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
                 .body(created);
     }

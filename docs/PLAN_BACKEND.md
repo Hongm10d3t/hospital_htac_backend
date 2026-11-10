@@ -676,9 +676,11 @@ Theo dõi đúng nơi giữ thuốc và trạng thái được phép sử dụng
 
 **Kết quả nghiệm thu**
 
-- [ ] Chuyển thành công giảm nguồn và tăng đích đúng cùng lượng, tổng tồn vật lý toàn viện không đổi do chuyển.
-- [ ] Nguồn/đích trùng hoàn toàn, nguồn thiếu hoặc điều kiện giải phóng cách ly không đạt bị từ chối.
-- [ ] Lỗi giữa giao dịch không để số dư chỉ thay đổi ở một phía.
+- [x] Chuyển thành công giảm nguồn và tăng đích đúng cùng lượng, tổng tồn vật lý toàn viện không đổi do chuyển.
+- [x] Nguồn/đích trùng hoàn toàn, nguồn thiếu hoặc điều kiện giải phóng cách ly không đạt bị từ chối.
+- [x] Lỗi giữa giao dịch không để số dư chỉ thay đổi ở một phía.
+
+Ghi nhận M06.05: `TransferStockDatabaseIntegrationTest` trên MySQL riêng kiểm tra MAIN→COUNTER, AVAILABLE→QUARANTINE, giải phóng cách ly có xác nhận và chặn lô khóa ở thời điểm ghi sổ; `StockDocumentDatabaseIntegrationTest` kiểm tra thiếu tồn và rollback nhiều dòng; `StockDocumentApiTest` kiểm tra role/CSRF/validation. API: `API_M06_05_TRANSFER.md`. Không có migration mới.
 
 ### M06.06 — Cấp thuốc theo đơn và theo lô
 
