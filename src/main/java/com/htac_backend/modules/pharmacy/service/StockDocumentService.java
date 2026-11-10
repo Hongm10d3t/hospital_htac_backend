@@ -8,6 +8,7 @@ import com.htac_backend.modules.pharmacy.entity.StockDocumentItem;
 import com.htac_backend.modules.pharmacy.repository.MedicineBatchRepository;
 import com.htac_backend.modules.pharmacy.repository.StockDocumentItemRepository;
 import com.htac_backend.modules.pharmacy.repository.StockDocumentRepository;
+import com.htac_backend.modules.pharmacy.repository.SupplierRepository;
 import com.htac_backend.shared.api.BusinessException;
 import com.htac_backend.shared.api.InvalidRequestException;
 import com.htac_backend.shared.api.NotFoundException;
@@ -30,17 +31,19 @@ public class StockDocumentService {
     private final StockDocumentItemRepository items;
     private final MedicineBatchRepository batches;
     private final StockBalanceService balances;
+    private final SupplierRepository suppliers;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
 
     public StockDocumentService(StockDocumentRepository documents,
             StockDocumentItemRepository items, MedicineBatchRepository batches,
-            StockBalanceService balances, CurrentPharmacistActor actor,
+            StockBalanceService balances, SupplierRepository suppliers, CurrentPharmacistActor actor,
             AccountRoleLookupService accounts) {
         this.documents = documents;
         this.items = items;
         this.batches = batches;
         this.balances = balances;
+        this.suppliers = suppliers;
         this.actor = actor;
         this.accounts = accounts;
     }
@@ -68,6 +71,13 @@ public class StockDocumentService {
             throw new BusinessException("STOCK_DOCUMENT_FINAL", "Phiếu đã hủy không thể ghi sổ");
         }
         validate(document, lines);
+        if (document.getType().equals("RECEIPT")) {
+            var supplier = suppliers.findByIdForUpdate(document.getSupplierId())
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy nhà cung cấp"));
+            if (!supplier.isActive()) {
+                throw new BusinessException("SUPPLIER_INACTIVE", "Nhà cung cấp đã ngừng hoạt động");
+            }
+        }
         // One batch row coordinates all writers, including the first document for an empty balance.
         lines.stream().map(line -> line.getBatch().getId()).distinct().sorted()
                 .forEach(batchId -> batches.findByIdForUpdate(batchId)

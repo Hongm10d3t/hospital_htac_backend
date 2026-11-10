@@ -1,9 +1,14 @@
 package com.htac_backend.modules.pharmacy.controller;
 
 import com.htac_backend.modules.pharmacy.dto.CancelStockDocumentRequest;
+import com.htac_backend.modules.pharmacy.dto.OpeningStockRequest;
+import com.htac_backend.modules.pharmacy.dto.ReceiptStockRequest;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
+import com.htac_backend.modules.pharmacy.service.InboundStockService;
 import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import jakarta.validation.Valid;
+import java.net.URI;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,9 +20,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/pharmacy/stock-documents")
 public class StockDocumentController {
     private final StockDocumentService documents;
+    private final InboundStockService inbound;
 
-    public StockDocumentController(StockDocumentService documents) {
+    public StockDocumentController(StockDocumentService documents, InboundStockService inbound) {
         this.documents = documents;
+        this.inbound = inbound;
+    }
+
+    @PostMapping("/openings")
+    public ResponseEntity<StockDocumentResponse> opening(@Valid @RequestBody OpeningStockRequest body) {
+        StockDocumentResponse created = inbound.opening(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/receipts")
+    public ResponseEntity<StockDocumentResponse> receipt(@Valid @RequestBody ReceiptStockRequest body) {
+        StockDocumentResponse created = inbound.receipt(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
     }
 
     @GetMapping("/{id}")

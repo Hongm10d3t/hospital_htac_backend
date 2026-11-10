@@ -656,9 +656,11 @@ Kho có số dư khởi tạo và ghi nhận được lượng hàng thực nh�
 
 **Kết quả nghiệm thu**
 
-- [ ] Phiếu nhập thiếu nhà cung cấp hoặc số lượng không hợp lệ bị chặn.
-- [ ] Số dư tăng đúng lô/vị trí/nhóm sau POSTED, phiếu nháp không tăng tồn.
-- [ ] Gửi lặp yêu cầu ghi sổ không tăng tồn hai lần, dữ liệu đầu kỳ có ngày nghiệp vụ xác định.
+- [x] Phiếu nhập thiếu nhà cung cấp hoặc số lượng không hợp lệ bị chặn.
+- [x] Số dư tăng đúng lô/vị trí/nhóm sau POSTED, phiếu nháp không tăng tồn.
+- [x] Gửi lặp yêu cầu ghi sổ không tăng tồn hai lần, dữ liệu đầu kỳ có ngày nghiệp vụ xác định.
+
+Ghi nhận M06.04: `InboundStockDatabaseIntegrationTest` trên MySQL riêng kiểm tra nháp, OPENING, RECEIPT, nhà cung cấp ngừng hoạt động, số lượng sai và ghi sổ lặp; `StockDocumentApiTest` kiểm tra role, CSRF và validation. API: `API_M06_04_INBOUND.md`. Liên kết đề xuất nhập chờ M07.04. Không có migration mới.
 
 ### M06.05 — Chuyển kho và chuyển nhóm tồn
 
