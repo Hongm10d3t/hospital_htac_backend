@@ -434,8 +434,10 @@ Giữ lịch sử khám cũ và gắn nó với đúng chủ tài khoản.
 **Kết quả nghiệm thu**
 
 - [ ] Sau liên kết, bệnh nhân thấy các lượt trước khi đăng ký và các lượt mới trong cùng hồ sơ.
-- [ ] Thông tin chưa đủ xác minh hoặc hồ sơ đã gắn tài khoản được xử lý theo quy trình đã chốt.
-- [ ] Hai giao dịch đồng thời không chiếm cùng hồ sơ, lỗi liên kết rollback cùng thao tác tạo tài khoản.
+- [x] Thông tin chưa đủ xác minh hoặc hồ sơ đã gắn tài khoản được xử lý theo quy trình đã chốt.
+- [x] Hai giao dịch đồng thời không chiếm cùng hồ sơ, lỗi liên kết rollback cùng thao tác tạo tài khoản.
+
+Ghi nhận M04.02: Luồng đối chiếu dùng API M01.03 và cập nhật hồ sơ M04.01. `PatientRegistrationDatabaseIntegrationTest` kiểm tra hồ sơ thiếu/sai CCCD, cấp mã sau khi sửa đúng hồ sơ, hồ sơ đã liên kết, mã hết hạn, hai đăng ký mới cạnh tranh và hai đăng ký cùng mã xác minh cạnh tranh; giao dịch thua không để lại tài khoản. Tiêu chí lịch sử cũ và mới sẽ được kiểm tra cùng API M04.05.
 
 ### M04.03 — Tiếp nhận người có hẹn và người đến trực tiếp
 

@@ -5,9 +5,11 @@ import com.htac_backend.modules.administration.dto.RegisterPatientRequest;
 import com.htac_backend.modules.administration.entity.AccountRole;
 import com.htac_backend.modules.administration.repository.UserAccountRepository;
 import com.htac_backend.modules.reception.dto.IssueRegistrationVerificationRequest;
+import com.htac_backend.modules.reception.dto.UpdatePatientRequest;
 import com.htac_backend.modules.reception.entity.PatientGender;
 import com.htac_backend.modules.reception.repository.PatientRepository;
 import com.htac_backend.modules.reception.service.PatientRegistrationLinkService;
+import com.htac_backend.modules.reception.service.PatientDirectoryService;
 import com.htac_backend.shared.api.BusinessException;
 import com.htac_backend.shared.api.PageQuery;
 import java.time.LocalDate;
@@ -50,6 +52,7 @@ class PatientRegistrationDatabaseIntegrationTest {
 
     @Autowired PatientAccountRegistrationService registrations;
     @Autowired PatientRegistrationLinkService links;
+    @Autowired PatientDirectoryService directory;
     @Autowired UserAccountRepository accounts;
     @Autowired PatientRepository patients;
     @Autowired JdbcTemplate jdbc;
@@ -130,6 +133,33 @@ class PatientRegistrationDatabaseIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "RECEPTIONIST")
+    void incorrectCitizenIdMustBeCorrectedOnSameRecordBeforeVerification() {
+        String incorrect = citizenId();
+        String correct = citizenId();
+        long patientId = seedPatient(null, incorrect);
+        String username = username();
+        try {
+            BusinessException mismatch = assertThrows(BusinessException.class, () ->
+                    links.issueVerification(patientId, new IssueRegistrationVerificationRequest(
+                            correct, "Synthetic Patient", LocalDate.of(1990, 1, 2))));
+            assertEquals("IDENTITY_MISMATCH", mismatch.getCode());
+            directory.update(patientId, new UpdatePatientRequest(correct, "Synthetic Patient",
+                    LocalDate.of(1990, 1, 2), PatientGender.OTHER, null));
+            var token = links.issueVerification(patientId, new IssueRegistrationVerificationRequest(
+                    correct, "Synthetic Patient", LocalDate.of(1990, 1, 2)));
+            PatientRegistrationResponse linked = registrations.register(request(username, correct, token.token()));
+            assertEquals(patientId, linked.patientId());
+            assertEquals(linked.accountId(), patients.findById(patientId).orElseThrow().getUserId());
+            assertEquals(0L, jdbc.queryForObject("SELECT COUNT(*) FROM patient WHERE citizen_id = ?",
+                    Long.class, incorrect));
+        } finally {
+            jdbc.update("DELETE FROM patient WHERE id = ?", patientId);
+            jdbc.update("DELETE FROM user_account WHERE username = ?", username);
+        }
+    }
+
+    @Test
     void concurrentSameIdentityCreatesOnlyOneAccountAndPatient() throws Exception {
         String citizenId = citizenId();
         String first = username();
@@ -160,6 +190,55 @@ class PatientRegistrationDatabaseIntegrationTest {
         }
         assertEquals(0L, jdbc.queryForObject("SELECT COUNT(*) FROM user_account WHERE username IN (?, ?)",
                 Long.class, first, second));
+    }
+
+    @Test
+    @WithMockUser(roles = "RECEPTIONIST")
+    void concurrentVerifiedLinksUseOneOldRecordAndRollbackLoserAccount() throws Exception {
+        String citizenId = citizenId();
+        long patientId = seedPatient(null, citizenId);
+        String first = username();
+        String second = username();
+        String token = links.issueVerification(patientId, new IssueRegistrationVerificationRequest(
+                citizenId, "Synthetic Patient", LocalDate.of(1990, 1, 2))).token();
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+        AtomicInteger succeeded = new AtomicInteger();
+        AtomicReference<Exception> rejected = new AtomicReference<>();
+        try {
+            try (var pool = Executors.newFixedThreadPool(2)) {
+                var a = pool.submit(() -> attemptVerified(first, citizenId, token, ready, start,
+                        succeeded, rejected));
+                var b = pool.submit(() -> attemptVerified(second, citizenId, token, ready, start,
+                        succeeded, rejected));
+                assertTrue(ready.await(5, TimeUnit.SECONDS));
+                start.countDown();
+                a.get(15, TimeUnit.SECONDS);
+                b.get(15, TimeUnit.SECONDS);
+            }
+            assertEquals(1, succeeded.get());
+            assertNotNull(rejected.get());
+            assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM user_account WHERE username IN (?, ?)",
+                    Long.class, first, second));
+            assertNotNull(patients.findById(patientId).orElseThrow().getUserId());
+            assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM patient WHERE citizen_id = ?",
+                    Long.class, citizenId));
+        } finally {
+            jdbc.update("DELETE FROM patient WHERE id = ?", patientId);
+            jdbc.update("DELETE FROM user_account WHERE username IN (?, ?)", first, second);
+        }
+    }
+
+    private void attemptVerified(String username, String citizenId, String token, CountDownLatch ready,
+            CountDownLatch start, AtomicInteger succeeded, AtomicReference<Exception> rejected) {
+        ready.countDown();
+        try {
+            start.await();
+            registrations.register(request(username, citizenId, token));
+            succeeded.incrementAndGet();
+        } catch (Exception failure) {
+            rejected.compareAndSet(null, failure);
+        }
     }
 
     private void attempt(String username, String citizenId, CountDownLatch ready, CountDownLatch start,
