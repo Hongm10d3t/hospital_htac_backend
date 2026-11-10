@@ -45,6 +45,7 @@ public class StockDraftFactory {
             if (line.batchId() == null || line.batchId() <= 0
                     || line.quantity() == null || line.quantity().scale() > 3
                     || line.quantity().precision() - line.quantity().scale() > 11
+                    || !validCount(line.bookQuantity()) || !validCount(line.countedQuantity())
                     || (line.unitCost() != null && (line.unitCost().signum() < 0
                     || line.unitCost().scale() > 2
                     || line.unitCost().precision() - line.unitCost().scale() > 12))
@@ -72,6 +73,11 @@ public class StockDraftFactory {
 
     private String code() {
         return "STK" + UUID.randomUUID().toString().replace("-", "").substring(0, 24).toUpperCase();
+    }
+
+    private boolean validCount(BigDecimal quantity) {
+        return quantity == null || (quantity.signum() >= 0 && quantity.scale() <= 3
+                && quantity.precision() - quantity.scale() <= 11);
     }
 
     private boolean validLocation(String value) {

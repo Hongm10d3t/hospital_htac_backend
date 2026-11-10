@@ -757,9 +757,11 @@ Ghi nhận được các trường hợp giảm tồn và chênh lệch kiểm k
 
 **Kết quả nghiệm thu**
 
-- [ ] Trả thiếu nhà cung cấp, thiếu lý do hoặc vượt tồn nguồn bị chặn.
-- [ ] Với tồn sổ 10 và kiểm đếm 8, quantity bằng -2 và tồn sau ghi sổ bằng 8 nếu không có biến động xen giữa.
-- [ ] Có ca kiểm tra chênh lệch dương, âm, bằng 0 và thay đổi tồn xen giữa, mỗi ca cho kết quả theo quy tắc đã thống nhất.
+- [x] Trả thiếu nhà cung cấp, thiếu lý do hoặc vượt tồn nguồn bị chặn.
+- [x] Với tồn sổ 10 và kiểm đếm 8, quantity bằng -2 và tồn sau ghi sổ bằng 8 nếu không có biến động xen giữa.
+- [x] Có ca kiểm tra chênh lệch dương, âm, bằng 0 và thay đổi tồn xen giữa, mỗi ca cho kết quả theo quy tắc đã thống nhất.
+
+Ghi nhận M06.09: `StockCorrectionDatabaseIntegrationTest` trên MySQL riêng kiểm tra trả nhà cung cấp, hủy thuốc, kiểm kê chênh âm/dương/0, thiếu tồn và phiếu kiểm kê cũ khi có biến động xen giữa; `StockDocumentApiTest` kiểm tra role/CSRF/validation. API: `API_M06_09_STOCK_CORRECTIONS.md`. Không có migration mới.
 
 ### M06.10 — Tra cứu tồn và cảnh báo
 

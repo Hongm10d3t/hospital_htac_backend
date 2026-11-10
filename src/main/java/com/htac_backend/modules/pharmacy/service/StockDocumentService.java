@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StockDocumentService {
     private static final Set<String> ENABLED_TYPES = Set.of("OPENING", "RECEIPT", "TRANSFER",
-            "DISPENSE", "PATIENT_RETURN");
+            "DISPENSE", "PATIENT_RETURN", "SUPPLIER_RETURN", "DISPOSAL", "ADJUSTMENT");
     private final StockDocumentRepository documents;
     private final StockDocumentItemRepository items;
     private final MedicineBatchRepository batches;
@@ -117,6 +117,16 @@ public class StockDocumentService {
                 validatePatientReturn(document, lines);
             }
         }
+        if (document.getType().equals("ADJUSTMENT")) {
+            for (StockDocumentItem line : lines) {
+                BigDecimal actual = balances.balance(new StockPosition(line.getBatch().getId(),
+                        document.getStockLocation(), document.getStockBucket()));
+                if (actual.compareTo(line.getBookQuantity()) != 0) {
+                    throw new BusinessException("STOCK_COUNT_STALE",
+                            "Tồn sổ đã thay đổi; đọc lại tồn và kiểm đếm lại");
+                }
+            }
+        }
         if (document.getType().equals("TRANSFER")) {
             boolean release = "QUARANTINE".equals(document.getStockBucket())
                     && "AVAILABLE".equals(document.getDestinationBucket());
@@ -147,7 +157,8 @@ public class StockDocumentService {
                 add(deltas, source, quantity.negate());
                 add(deltas, new StockPosition(line.getBatch().getId(),
                         document.getDestinationLocation(), document.getDestinationBucket()), quantity);
-            } else if (document.getType().equals("DISPENSE")) {
+            } else if (Set.of("DISPENSE", "SUPPLIER_RETURN", "DISPOSAL")
+                    .contains(document.getType())) {
                 add(deltas, source, quantity.negate());
             } else {
                 add(deltas, source, quantity);
@@ -206,11 +217,18 @@ public class StockDocumentService {
         } else if (document.getDestinationLocation() != null || document.getDestinationBucket() != null) {
             throw new InvalidRequestException("Phiếu này không có vị trí đích");
         }
-        if (document.getType().equals("RECEIPT") && document.getSupplierId() == null) {
-            throw new InvalidRequestException("Phiếu nhập cần nhà cung cấp");
+        boolean supplierType = document.getType().equals("RECEIPT")
+                || document.getType().equals("SUPPLIER_RETURN");
+        if (supplierType && document.getSupplierId() == null) {
+            throw new InvalidRequestException("Phiếu nhập/trả nhà cung cấp cần đối tác");
         }
-        if (!document.getType().equals("RECEIPT") && document.getSupplierId() != null) {
+        if (!supplierType && document.getSupplierId() != null) {
             throw new InvalidRequestException("Loại phiếu này không có nhà cung cấp");
+        }
+        if (Set.of("PATIENT_RETURN", "SUPPLIER_RETURN", "DISPOSAL", "ADJUSTMENT")
+                .contains(document.getType())
+                && (document.getNote() == null || document.getNote().isBlank())) {
+            throw new InvalidRequestException("Loại phiếu này cần lý do");
         }
         boolean prescriptionType = document.getType().equals("DISPENSE")
                 || document.getType().equals("PATIENT_RETURN");
@@ -230,17 +248,28 @@ public class StockDocumentService {
             throw new InvalidRequestException("Thuốc bệnh nhân trả phải vào quầy cách ly và có lý do");
         }
         for (StockDocumentItem line : lines) {
-            if (!validQuantity(line.getQuantity()) || line.getQuantity().signum() <= 0
+            boolean adjustment = document.getType().equals("ADJUSTMENT");
+            if (!validQuantity(line.getQuantity())
+                    || (!adjustment && line.getQuantity().signum() <= 0)
                     || (prescriptionType != (line.getPrescriptionItemId() != null))
                     || (document.getType().equals("PATIENT_RETURN")
                             != (line.getSourceItemId() != null))
-                    || line.getBookQuantity() != null || line.getCountedQuantity() != null
+                    || (adjustment != (line.getBookQuantity() != null
+                            && line.getCountedQuantity() != null))
                     || (line.getUnitCost() != null && (line.getUnitCost().signum() < 0
                     || line.getUnitCost().scale() > 2))) {
                 throw new InvalidRequestException("Dòng phiếu kho không hợp lệ");
             }
             if (!document.getType().equals("RECEIPT") && line.getUnitCost() != null) {
                 throw new InvalidRequestException("Chỉ phiếu nhập có giá nhập");
+            }
+            if (adjustment && (line.getBookQuantity().signum() < 0
+                    || line.getCountedQuantity().signum() < 0
+                    || !validQuantity(line.getBookQuantity())
+                    || !validQuantity(line.getCountedQuantity())
+                    || !line.getQuantity().equals(line.getCountedQuantity()
+                            .subtract(line.getBookQuantity())))) {
+                throw new InvalidRequestException("Chênh lệch kiểm kê không khớp tồn sổ và kiểm đếm");
             }
         }
     }

@@ -7,9 +7,12 @@ import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
 import com.htac_backend.modules.pharmacy.dto.TransferStockRequest;
 import com.htac_backend.modules.pharmacy.dto.DispenseStockRequest;
 import com.htac_backend.modules.pharmacy.dto.PatientReturnRequest;
+import com.htac_backend.modules.pharmacy.dto.StockExitRequest;
+import com.htac_backend.modules.pharmacy.dto.AdjustmentRequest;
 import com.htac_backend.modules.pharmacy.service.InboundStockService;
 import com.htac_backend.modules.pharmacy.service.DispenseStockService;
 import com.htac_backend.modules.pharmacy.service.PatientReturnService;
+import com.htac_backend.modules.pharmacy.service.StockCorrectionService;
 import com.htac_backend.modules.pharmacy.service.TransferStockService;
 import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import jakarta.validation.Valid;
@@ -30,15 +33,17 @@ public class StockDocumentController {
     private final TransferStockService transfers;
     private final DispenseStockService dispensing;
     private final PatientReturnService patientReturns;
+    private final StockCorrectionService corrections;
 
     public StockDocumentController(StockDocumentService documents, InboundStockService inbound,
             TransferStockService transfers, DispenseStockService dispensing,
-            PatientReturnService patientReturns) {
+            PatientReturnService patientReturns, StockCorrectionService corrections) {
         this.documents = documents;
         this.inbound = inbound;
         this.transfers = transfers;
         this.dispensing = dispensing;
         this.patientReturns = patientReturns;
+        this.corrections = corrections;
     }
 
     @PostMapping("/openings")
@@ -73,6 +78,28 @@ public class StockDocumentController {
     public ResponseEntity<StockDocumentResponse> patientReturn(
             @Valid @RequestBody PatientReturnRequest body) {
         StockDocumentResponse created = patientReturns.create(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/supplier-returns")
+    public ResponseEntity<StockDocumentResponse> supplierReturn(
+            @Valid @RequestBody StockExitRequest body) {
+        StockDocumentResponse created = corrections.supplierReturn(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/disposals")
+    public ResponseEntity<StockDocumentResponse> disposal(@Valid @RequestBody StockExitRequest body) {
+        StockDocumentResponse created = corrections.disposal(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/adjustments")
+    public ResponseEntity<StockDocumentResponse> adjustment(@Valid @RequestBody AdjustmentRequest body) {
+        StockDocumentResponse created = corrections.adjustment(body);
         return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
                 .body(created);
     }
