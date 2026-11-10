@@ -413,9 +413,11 @@ Mỗi bệnh nhân được theo dõi xuyên suốt nhiều lần khám với h�
 
 **Kết quả nghiệm thu**
 
-- [ ] Tạo hồ sơ trực tiếp thành công với `user_id` và CCCD trống, không yêu cầu cột phone trong patient.
-- [ ] Mã bệnh nhân hoặc CCCD trùng bị chặn, cập nhật thông tin không làm mất liên kết lịch sử.
-- [ ] PATIENT chỉ xem được hồ sơ của mình, RECEPTIONIST thao tác trong phạm vi hồ sơ hành chính.
+- [x] Tạo hồ sơ trực tiếp thành công với `user_id` và CCCD trống, không yêu cầu cột phone trong patient.
+- [x] Mã bệnh nhân hoặc CCCD trùng bị chặn, cập nhật thông tin không làm mất liên kết lịch sử.
+- [x] PATIENT chỉ xem được hồ sơ của mình, RECEPTIONIST thao tác trong phạm vi hồ sơ hành chính.
+
+Ghi nhận M04.01: `PatientDirectoryApiTest` kiểm tra quyền, CSRF, validation và DTO không có phone; `PatientDirectoryDatabaseIntegrationTest` trên MySQL riêng xác nhận hồ sơ trực tiếp không có tài khoản/CCCD, mã và CCCD duy nhất, tra cứu theo mã/CCCD/định danh, cập nhật giữ liên kết tài khoản và vô hiệu mã xác minh cũ khi định danh đổi. `mvnw.cmd test`: 81 kiểm thử thành công. Không có migration mới.
 
 ### M04.02 — Liên kết hồ sơ cũ và tài khoản
 

@@ -87,10 +87,13 @@ public class SecurityConfig {
                 .hasRole("ADMIN")
                 .requestMatchers("/api/v1/appointments", "/api/v1/appointments/**")
                 .hasRole("PATIENT")
+                .requestMatchers("/api/v1/patients/me").hasRole("PATIENT")
                 .requestMatchers("/api/v1/reception/patients/registration-candidates",
                         "/api/v1/reception/patients/*/registration-verification")
                 .hasRole("RECEPTIONIST")
                 .requestMatchers("/api/v1/reception/appointments", "/api/v1/reception/appointments/**")
+                .hasRole("RECEPTIONIST")
+                .requestMatchers("/api/v1/reception/patients", "/api/v1/reception/patients/**")
                 .hasRole("RECEPTIONIST")
                 .anyRequest().denyAll());
         http.securityContext(context -> context.securityContextRepository(contexts));

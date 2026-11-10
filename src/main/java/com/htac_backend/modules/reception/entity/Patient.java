@@ -56,7 +56,27 @@ public class Patient extends AuditedEntity {
     public String getCitizenId() { return citizenId; }
     public String getFullName() { return fullName; }
     public LocalDate getDateOfBirth() { return dateOfBirth; }
+    public PatientGender getGender() { return gender; }
+    public String getAddress() { return address; }
     public boolean isLinked() { return userId != null; }
+
+    public void updateIdentity(String citizenId, String fullName, LocalDate dateOfBirth,
+            PatientGender gender, String address) {
+        if (!java.util.Objects.equals(this.citizenId, citizenId)
+                || !this.fullName.equals(fullName) || !this.dateOfBirth.equals(dateOfBirth)) {
+            clearRegistrationToken();
+        }
+        this.citizenId = citizenId;
+        this.fullName = fullName;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
+        this.address = address;
+    }
+
+    public void clearRegistrationToken() {
+        this.registrationTokenHash = null;
+        this.registrationTokenExpiresAt = null;
+    }
 
     public void setCitizenId(String citizenId) { this.citizenId = citizenId; }
     public void setRegistrationToken(String hash, Instant expiresAt) {
@@ -72,7 +92,6 @@ public class Patient extends AuditedEntity {
     }
     public void link(Long userId) {
         this.userId = userId;
-        this.registrationTokenHash = null;
-        this.registrationTokenExpiresAt = null;
+        clearRegistrationToken();
     }
 }
