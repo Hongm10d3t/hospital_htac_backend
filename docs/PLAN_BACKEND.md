@@ -595,9 +595,11 @@ Kê đơn, nhập, xuất và báo cáo cùng sử dụng một danh mục và �
 
 **Kết quả nghiệm thu**
 
-- [ ] Lượng kê/kho dùng base_unit, lead time âm hoặc ngưỡng tồn không hợp lệ bị từ chối.
-- [ ] Thay bản chất thuốc đã có nghiệp vụ bị chặn và có hướng dẫn tạo mã mới.
-- [ ] Danh mục ngừng hoạt động vẫn hiển thị đúng trong dữ liệu lịch sử.
+- [x] Lượng kê/kho dùng base_unit, lead time âm hoặc ngưỡng tồn không hợp lệ bị từ chối.
+- [x] Thay bản chất thuốc đã có nghiệp vụ bị chặn và có hướng dẫn tạo mã mới.
+- [x] Danh mục ngừng hoạt động vẫn hiển thị đúng trong dữ liệu lịch sử.
+
+Ghi nhận M06.01: `MedicineCatalogDatabaseIntegrationTest` trên MySQL riêng kiểm tra mã trùng, số lượng cấu hình, khóa bản chất thuốc sau khi có lô, thuốc ngừng hoạt động và tra cứu bác sĩ; `MedicineCatalogApiTest` kiểm tra role, CSRF và validation. API: `API_M06_01_CATALOG.md`. Không có migration mới.
 
 ### M06.02 — Lô thuốc, hạn dùng và khóa lô
 
