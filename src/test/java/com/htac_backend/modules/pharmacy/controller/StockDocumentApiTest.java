@@ -5,6 +5,7 @@ import com.htac_backend.modules.administration.service.DatabaseUserDetailsServic
 import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import com.htac_backend.modules.pharmacy.service.InboundStockService;
 import com.htac_backend.modules.pharmacy.service.TransferStockService;
+import com.htac_backend.modules.pharmacy.service.DispenseStockService;
 import com.htac_backend.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(StockDocumentController.class)
+@WebMvcTest({StockDocumentController.class, PharmacyPrescriptionController.class})
 @Import({SecurityConfig.class, DatabaseUserDetailsService.class})
 class StockDocumentApiTest {
     @Autowired MockMvc mvc;
@@ -29,6 +30,7 @@ class StockDocumentApiTest {
     @MockitoBean StockDocumentService documents;
     @MockitoBean InboundStockService inbound;
     @MockitoBean TransferStockService transfers;
+    @MockitoBean DispenseStockService dispensing;
 
     @Test
     void postingRequiresPharmacistAndCsrf() throws Exception {
@@ -56,6 +58,13 @@ class StockDocumentApiTest {
                         .with(user("pharmacist").roles("PHARMACIST")).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest());
-        verifyNoInteractions(documents, inbound, transfers);
+        mvc.perform(post("/api/v1/pharmacy/stock-documents/dispensations")
+                        .with(user("pharmacist").roles("PHARMACIST")).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/v1/pharmacy/prescriptions/1/dispensing")
+                        .with(user("doctor").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(documents, inbound, transfers, dispensing);
     }
 }

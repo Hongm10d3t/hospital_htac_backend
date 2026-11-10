@@ -5,7 +5,9 @@ import com.htac_backend.modules.pharmacy.dto.OpeningStockRequest;
 import com.htac_backend.modules.pharmacy.dto.ReceiptStockRequest;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
 import com.htac_backend.modules.pharmacy.dto.TransferStockRequest;
+import com.htac_backend.modules.pharmacy.dto.DispenseStockRequest;
 import com.htac_backend.modules.pharmacy.service.InboundStockService;
+import com.htac_backend.modules.pharmacy.service.DispenseStockService;
 import com.htac_backend.modules.pharmacy.service.TransferStockService;
 import com.htac_backend.modules.pharmacy.service.StockDocumentService;
 import jakarta.validation.Valid;
@@ -24,12 +26,14 @@ public class StockDocumentController {
     private final StockDocumentService documents;
     private final InboundStockService inbound;
     private final TransferStockService transfers;
+    private final DispenseStockService dispensing;
 
     public StockDocumentController(StockDocumentService documents, InboundStockService inbound,
-            TransferStockService transfers) {
+            TransferStockService transfers, DispenseStockService dispensing) {
         this.documents = documents;
         this.inbound = inbound;
         this.transfers = transfers;
+        this.dispensing = dispensing;
     }
 
     @PostMapping("/openings")
@@ -49,6 +53,13 @@ public class StockDocumentController {
     @PostMapping("/transfers")
     public ResponseEntity<StockDocumentResponse> transfer(@Valid @RequestBody TransferStockRequest body) {
         StockDocumentResponse created = transfers.create(body);
+        return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
+                .body(created);
+    }
+
+    @PostMapping("/dispensations")
+    public ResponseEntity<StockDocumentResponse> dispense(@Valid @RequestBody DispenseStockRequest body) {
+        StockDocumentResponse created = dispensing.create(body);
         return ResponseEntity.created(URI.create("/api/v1/pharmacy/stock-documents/" + created.id()))
                 .body(created);
     }

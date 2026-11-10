@@ -555,9 +555,9 @@ Ghi nhận M05.02: `ClinicalVisitDatabaseIntegrationTest` trên MySQL riêng ki�
 
 - [x] Đơn sai lượt/bác sĩ, dòng trùng thuốc hoặc lượng không hợp lệ bị chặn.
 - [x] Chỉ đơn ISSUED xuất hiện trong luồng cấp phát hợp lệ, phát hành lặp không tạo thêm đơn.
-- [ ] Lập hoặc phát hành đơn giữ nguyên số dư kho, số dư chỉ đổi qua phiếu kho hợp lệ.
+- [x] Lập hoặc phát hành đơn giữ nguyên số dư kho, số dư chỉ đổi qua phiếu kho hợp lệ.
 
-Ghi nhận M05.03: `DoctorPrescriptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra bác sĩ đúng lượt, thuốc hoạt động, dòng trùng/lượng sai, đơn DRAFT bị từ chối ở hợp đồng cấp phát, phát hành lặp/đồng thời giữ `issued_at`, và M05 không tạo phiếu kho. `DoctorPrescriptionApiTest` kiểm tra role, CSRF và validation. M06 cung cấp hợp đồng khóa thuốc hiện có; tiêu chí số dư kho chỉ được chốt khi M06 triển khai ghi sổ thật. Không có migration mới.
+Ghi nhận M05.03: `DoctorPrescriptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra bác sĩ đúng lượt, thuốc hoạt động, dòng trùng/lượng sai, đơn DRAFT bị từ chối ở hợp đồng cấp phát, phát hành lặp/đồng thời giữ `issued_at`, và M05 không tạo phiếu kho. `DoctorPrescriptionApiTest` kiểm tra role, CSRF và validation. `DispenseStockDatabaseIntegrationTest` của M06.06 xác nhận tạo đơn và phiếu nháp không đổi tồn, chỉ DISPENSE POSTED trừ đúng từng lô. Không có migration mới.
 
 ### M05.04 — Đơn bổ sung, hủy đơn và bảo vệ dữ liệu đã cấp
 
@@ -575,9 +575,9 @@ Ghi nhận M05.03: `DoctorPrescriptionDatabaseIntegrationTest` trên MySQL riên
 
 - [x] Tạo đơn bổ sung giữ liên kết đúng lượt và bác sĩ, hủy thiếu lý do bị từ chối.
 - [x] Nội dung đã làm căn cứ cấp phát được bảo vệ, các thao tác xóa/sửa trái điều kiện bị chặn.
-- [ ] Cạnh tranh giữa hủy đơn và ghi sổ cấp thuốc cho ra một trạng thái cuối hợp lệ, lượng kê và cấp đối chiếu được.
+- [x] Cạnh tranh giữa hủy đơn và ghi sổ cấp thuốc cho ra một trạng thái cuối hợp lệ, lượng kê và cấp đối chiếu được.
 
-Ghi nhận M05.04: `PrescriptionAmendmentDatabaseIntegrationTest` trên MySQL riêng kiểm tra sửa đơn DRAFT, chặn sửa ISSUED, tạo đơn bổ sung, hủy có lý do, chặn hủy khi có phiếu kho, và hợp đồng khóa đơn khi hủy cạnh tranh với giao dịch mô phỏng ghi phiếu POSTED. `DoctorPrescriptionApiTest` kiểm tra role, CSRF và validation. M05.02 từ chối NOT_COMPLETED khi còn đơn ISSUED. Tiêu chí đối chiếu lượng kê và lượng cấp còn mở đến khi M06 có luồng ghi sổ DISPENSE thật; bài kiểm thử hiện tại chỉ xác nhận điều kiện khóa và trạng thái. Không có migration mới.
+Ghi nhận M05.04: `PrescriptionAmendmentDatabaseIntegrationTest` trên MySQL riêng kiểm tra sửa đơn DRAFT, chặn sửa ISSUED, tạo đơn bổ sung, hủy có lý do và chặn hủy khi có phiếu kho. `DispenseStockDatabaseIntegrationTest` của M06.06 kiểm tra hủy cạnh tranh với tạo và ghi sổ DISPENSE thật; chỉ một kết quả cuối hợp lệ, lượng cấp đối chiếu với đơn và tồn. `DoctorPrescriptionApiTest` kiểm tra role, CSRF và validation. M05.02 từ chối NOT_COMPLETED khi còn đơn ISSUED. Không có migration mới.
 
 ## 9. M06 — Quản lý dược và kho thuốc
 
@@ -697,9 +697,11 @@ Lượng thực cấp có nguồn lô, khớp đơn và đủ căn cứ tổng h
 
 **Kết quả nghiệm thu**
 
-- [ ] Đơn nháp/hủy, sai thuốc, sai dòng đơn, lô khóa/hết hạn/cách ly bị chặn.
-- [ ] Ví dụ kê 10, đã cấp 6 thì lần cấp tiếp tối đa 4 theo quy tắc tổng cấp đã chốt. Hai yêu cầu đồng thời không vượt giới hạn.
-- [ ] Một dòng cấp từ hai lô được lưu đúng chi tiết và trừ đúng số dư từng lô, lỗi một dòng rollback toàn phiếu.
+- [x] Đơn nháp/hủy, sai thuốc, sai dòng đơn, lô khóa/hết hạn/cách ly bị chặn.
+- [x] Ví dụ kê 10, đã cấp 6 thì lần cấp tiếp tối đa 4 theo quy tắc tổng cấp đã chốt. Hai yêu cầu đồng thời không vượt giới hạn.
+- [x] Một dòng cấp từ hai lô được lưu đúng chi tiết và trừ đúng số dư từng lô, lỗi một dòng rollback toàn phiếu.
+
+Ghi nhận M06.06: `DispenseStockDatabaseIntegrationTest` trên MySQL riêng kiểm tra hai lô/một dòng, cấp nhiều đợt, hai phiếu cạnh tranh cùng đơn, lô khóa/hết hạn/cách ly, phiếu nháp cũ khi tồn hoặc trạng thái lô đổi, rollback nhiều dòng và hủy đơn cạnh tranh với DISPENSE thật. `StockDocumentApiTest` kiểm tra role/CSRF/validation. API: `API_M06_06_DISPENSING.md`. Không có migration mới.
 
 ### M06.07 — Ghi nhận phần thuốc chưa nhận
 

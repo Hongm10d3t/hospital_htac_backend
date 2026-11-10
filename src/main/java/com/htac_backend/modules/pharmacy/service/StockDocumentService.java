@@ -2,6 +2,9 @@ package com.htac_backend.modules.pharmacy.service;
 
 import com.htac_backend.modules.administration.entity.AccountRole;
 import com.htac_backend.modules.administration.service.AccountRoleLookupService;
+import com.htac_backend.modules.outpatient.dto.IssuedPrescriptionSnapshot;
+import com.htac_backend.modules.outpatient.dto.PrescriptionLineResponse;
+import com.htac_backend.modules.outpatient.service.IssuedPrescriptionService;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
 import com.htac_backend.modules.pharmacy.entity.StockDocument;
 import com.htac_backend.modules.pharmacy.entity.StockDocumentItem;
@@ -19,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -26,20 +31,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StockDocumentService {
-    private static final Set<String> ENABLED_TYPES = Set.of("OPENING", "RECEIPT", "TRANSFER");
+    private static final Set<String> ENABLED_TYPES = Set.of("OPENING", "RECEIPT", "TRANSFER", "DISPENSE");
     private final StockDocumentRepository documents;
     private final StockDocumentItemRepository items;
     private final MedicineBatchRepository batches;
     private final StockBalanceService balances;
     private final SupplierRepository suppliers;
     private final MedicineBatchService batchRules;
+    private final IssuedPrescriptionService prescriptions;
+    private final DispensedQuantityService dispensed;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
 
     public StockDocumentService(StockDocumentRepository documents,
             StockDocumentItemRepository items, MedicineBatchRepository batches,
             StockBalanceService balances, SupplierRepository suppliers,
-            MedicineBatchService batchRules, CurrentPharmacistActor actor,
+            MedicineBatchService batchRules, IssuedPrescriptionService prescriptions,
+            DispensedQuantityService dispensed, CurrentPharmacistActor actor,
             AccountRoleLookupService accounts) {
         this.documents = documents;
         this.items = items;
@@ -47,6 +55,8 @@ public class StockDocumentService {
         this.balances = balances;
         this.suppliers = suppliers;
         this.batchRules = batchRules;
+        this.prescriptions = prescriptions;
+        this.dispensed = dispensed;
         this.actor = actor;
         this.accounts = accounts;
     }
@@ -72,6 +82,13 @@ public class StockDocumentService {
         if (!document.getStatus().equals("DRAFT")) {
             throw new BusinessException("STOCK_DOCUMENT_FINAL", "Phiếu đã hủy không thể ghi sổ");
         }
+        IssuedPrescriptionSnapshot prescription = null;
+        if (document.getType().equals("DISPENSE")) {
+            if (document.getPrescriptionId() == null) {
+                throw new InvalidRequestException("Phiếu cấp thuốc thiếu đơn");
+            }
+            prescription = prescriptions.lockForDispensing(document.getPrescriptionId());
+        }
         if (document.getType().equals("RECEIPT")) {
             var supplier = suppliers.findByIdForUpdate(document.getSupplierId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy nhà cung cấp"));
@@ -84,6 +101,9 @@ public class StockDocumentService {
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy lô thuốc")));
         List<StockDocumentItem> lines = items.findDetailsByDocumentId(id);
         validate(document, lines);
+        if (prescription != null) {
+            validateDispense(document, lines, prescription);
+        }
         if (document.getType().equals("TRANSFER")) {
             boolean release = "QUARANTINE".equals(document.getStockBucket())
                     && "AVAILABLE".equals(document.getDestinationBucket());
@@ -114,6 +134,8 @@ public class StockDocumentService {
                 add(deltas, source, quantity.negate());
                 add(deltas, new StockPosition(line.getBatch().getId(),
                         document.getDestinationLocation(), document.getDestinationBucket()), quantity);
+            } else if (document.getType().equals("DISPENSE")) {
+                add(deltas, source, quantity.negate());
             } else {
                 add(deltas, source, quantity);
             }
@@ -169,12 +191,19 @@ public class StockDocumentService {
         if (!document.getType().equals("RECEIPT") && document.getSupplierId() != null) {
             throw new InvalidRequestException("Loại phiếu này không có nhà cung cấp");
         }
-        if (document.getPrescriptionId() != null || document.getPurchaseRequestId() != null) {
+        if ((document.getType().equals("DISPENSE") != (document.getPrescriptionId() != null))
+                || document.getPurchaseRequestId() != null) {
             throw new InvalidRequestException("Loại phiếu này không gắn đơn hoặc đề xuất nhập");
+        }
+        if (document.getType().equals("DISPENSE")
+                && (!document.getStockLocation().equals("COUNTER")
+                || !document.getStockBucket().equals("AVAILABLE"))) {
+            throw new InvalidRequestException("Chỉ cấp từ tồn khả dụng tại quầy");
         }
         for (StockDocumentItem line : lines) {
             if (!validQuantity(line.getQuantity()) || line.getQuantity().signum() <= 0
-                    || line.getPrescriptionItemId() != null || line.getSourceItemId() != null
+                    || (document.getType().equals("DISPENSE") != (line.getPrescriptionItemId() != null))
+                    || line.getSourceItemId() != null
                     || line.getBookQuantity() != null || line.getCountedQuantity() != null
                     || (line.getUnitCost() != null && (line.getUnitCost().signum() < 0
                     || line.getUnitCost().scale() > 2))) {
@@ -182,6 +211,37 @@ public class StockDocumentService {
             }
             if (!document.getType().equals("RECEIPT") && line.getUnitCost() != null) {
                 throw new InvalidRequestException("Chỉ phiếu nhập có giá nhập");
+            }
+        }
+    }
+
+    private void validateDispense(StockDocument document, List<StockDocumentItem> lines,
+            IssuedPrescriptionSnapshot prescription) {
+        if (document.getOccurredAt().isBefore(prescription.issuedAt())) {
+            throw new InvalidRequestException("Thời điểm cấp trước khi phát hành đơn");
+        }
+        Map<Long, PrescriptionLineResponse> prescribed = prescription.items().stream()
+                .collect(Collectors.toMap(PrescriptionLineResponse::id, Function.identity()));
+        Map<Long, BigDecimal> byLine = new HashMap<>();
+        var today = batchRules.businessDate();
+        for (StockDocumentItem line : lines) {
+            PrescriptionLineResponse expected = prescribed.get(line.getPrescriptionItemId());
+            if (expected == null || !expected.medicineId().equals(line.getBatch().getMedicine().getId())) {
+                throw new BusinessException("DISPENSE_LINE_MISMATCH",
+                        "Dòng đơn hoặc lô không khớp thuốc trong đơn");
+            }
+            if (!batchRules.isDispensable(line.getBatch(), today)) {
+                throw new BusinessException("BATCH_NOT_DISPENSABLE",
+                        "Lô bị khóa, hết hạn hoặc thuốc ngừng hoạt động");
+            }
+            byLine.merge(line.getPrescriptionItemId(), line.getQuantity(), BigDecimal::add);
+        }
+        for (var entry : byLine.entrySet()) {
+            BigDecimal allowed = prescribed.get(entry.getKey()).quantity()
+                    .subtract(dispensed.postedQuantity(entry.getKey()));
+            if (entry.getValue().compareTo(allowed) > 0) {
+                throw new BusinessException("DISPENSE_EXCEEDS_PRESCRIPTION",
+                        "Lượng cấp vượt lượng còn lại của dòng đơn");
             }
         }
     }
