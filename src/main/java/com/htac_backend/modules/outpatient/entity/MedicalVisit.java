@@ -79,6 +79,8 @@ public class MedicalVisit extends AuditedEntity {
     public LocalDate getQueueDate() { return queueDate; }
     public int getQueueNumber() { return queueNumber; }
     public Instant getArrivedAt() { return arrivedAt; }
+    public Instant getStartedAt() { return startedAt; }
+    public Instant getCompletedAt() { return completedAt; }
     public VisitStatus getStatus() { return status; }
     public String getReason() { return reason; }
     public String getClinicalNotes() { return clinicalNotes; }
@@ -87,6 +89,11 @@ public class MedicalVisit extends AuditedEntity {
     public String getTreatmentPlan() { return treatmentPlan; }
     public LocalDate getFollowUpDate() { return followUpDate; }
     public String getOutcomeReason() { return outcomeReason; }
+
+    public void start(Instant now) {
+        status = VisitStatus.IN_PROGRESS;
+        startedAt = now;
+    }
 
     public void notComplete(String reason) {
         status = VisitStatus.NOT_COMPLETED;

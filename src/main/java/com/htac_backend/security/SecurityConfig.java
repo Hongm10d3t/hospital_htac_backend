@@ -88,6 +88,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/appointments", "/api/v1/appointments/**")
                 .hasRole("PATIENT")
                 .requestMatchers("/api/v1/patients/me", "/api/v1/patients/me/**").hasRole("PATIENT")
+                .requestMatchers("/api/v1/doctor/**").hasRole("DOCTOR")
                 .requestMatchers("/api/v1/reception/patients/registration-candidates",
                         "/api/v1/reception/patients/*/registration-verification")
                 .hasRole("RECEPTIONIST")

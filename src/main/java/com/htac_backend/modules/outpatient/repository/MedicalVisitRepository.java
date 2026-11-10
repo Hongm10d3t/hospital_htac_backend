@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
 public interface MedicalVisitRepository extends JpaRepository<MedicalVisit, Long> {
     Optional<MedicalVisit> findByAppointmentId(Long appointmentId);
 
+    Page<MedicalVisit> findBySlotIdAndStatus(Long slotId, VisitStatus status, Pageable pageable);
+
     @Query("select visit from MedicalVisit visit where visit.patientId = :patientId "
             + "and visit.status <> com.htac_backend.modules.outpatient.entity.VisitStatus.VOIDED "
             + "and (:from is null or visit.queueDate >= :from) "

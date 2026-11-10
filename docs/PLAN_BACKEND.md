@@ -513,9 +513,11 @@ Bác sĩ tiếp nhận đúng công việc và ghi nhận quá trình khám nh�
 
 **Kết quả nghiệm thu**
 
-- [ ] Bác sĩ thao tác được lượt được phân công, bác sĩ khác bị từ chối ghi.
-- [ ] Bắt đầu hai lần không ghi đè sai thời điểm ban đầu hoặc tạo lượt mới.
-- [ ] Quyền đọc lịch sử được áp dụng theo quy tắc đã chốt ở N00.02.
+- [x] Bác sĩ thao tác được lượt được phân công, bác sĩ khác bị từ chối ghi.
+- [x] Bắt đầu hai lần không ghi đè sai thời điểm ban đầu hoặc tạo lượt mới.
+- [x] Quyền đọc lịch sử được áp dụng theo quy tắc đã chốt ở N00.02.
+
+Ghi nhận M05.01: `DoctorVisitDatabaseIntegrationTest` trên MySQL riêng kiểm tra khung được phân công, danh sách WAITING, bác sĩ khác không đọc/khởi động lượt, lịch sử chỉ qua lượt đang phụ trách và hai yêu cầu bắt đầu đồng thời giữ nguyên `started_at`. `DoctorVisitApiTest` kiểm tra role, CSRF và phân trang. M03 cung cấp hợp đồng đọc/khóa slot; M04 cung cấp định danh tối thiểu của bệnh nhân. Không có migration mới.
 
 ### M05.02 — Ghi nhận và kết thúc khám
 
