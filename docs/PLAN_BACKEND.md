@@ -635,10 +635,12 @@ Có một cơ chế ghi sổ đáng tin cậy cho mọi nghiệp vụ kho.
 
 **Kết quả nghiệm thu**
 
-- [ ] Chỉ POSTED tác động số dư, ghi sổ lại cùng phiếu không tác động tồn lần hai.
-- [ ] Lỗi ở bất kỳ dòng nào rollback toàn phiếu, `posted_at` và `posted_by` chỉ phản ánh lần ghi sổ thành công.
-- [ ] Hai phiếu cạnh tranh cùng lô/vị trí/nhóm tồn không làm tồn âm, kể cả khi số dư được tính từ lịch sử phiếu.
+- [x] Chỉ POSTED tác động số dư, ghi sổ lại cùng phiếu không tác động tồn lần hai.
+- [x] Lỗi ở bất kỳ dòng nào rollback toàn phiếu, `posted_at` và `posted_by` chỉ phản ánh lần ghi sổ thành công.
+- [x] Hai phiếu cạnh tranh cùng lô/vị trí/nhóm tồn không làm tồn âm, kể cả khi số dư được tính từ lịch sử phiếu.
 - [ ] Quy tắc hủy/sửa sai POSTED được chốt trước nghiệm thu, có kiểm tra tác động tới tồn, cấp phát và đề xuất nhập liên quan.
+
+Ghi nhận M06.03: `StockDocumentDatabaseIntegrationTest` trên MySQL riêng kiểm tra nháp, ghi sổ lặp, rollback nhiều dòng, khóa POSTED và hai phiếu cạnh tranh cùng lô; `StockDocumentApiTest` kiểm tra role/CSRF. Phần đối chiếu tác động của phiếu sửa sai tới cấp phát và đề xuất nhập sẽ kiểm tra khi các loại phiếu tương ứng có API. API: `API_M06_03_STOCK_LEDGER.md`. Không có migration mới.
 
 ### M06.04 — Tồn đầu kỳ và nhập kho
 
