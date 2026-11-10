@@ -216,7 +216,7 @@ Bệnh nhân có tài khoản và truy cập đúng hồ sơ, bao gồm lịch s
 - [x] Hồ sơ cũ hợp lệ được liên kết theo quy trình xác minh đã chốt, không tạo bản sao của hồ sơ đã xác định.
 - [x] Yêu cầu đồng thời hoặc lỗi liên kết không tạo tài khoản/hồ sơ dở dang hay gắn hai tài khoản vào cùng patient.
 
-Ghi nhận M01.03: đăng ký công khai trả 409 và không tạo tài khoản khi hồ sơ cần đối chiếu; RECEPTIONIST cấp mã một lần sau kiểm tra trực tiếp. `PatientRegistrationApiTest` kiểm tra CSRF, role; `PatientRegistrationDatabaseIntegrationTest` chạy trên MySQL riêng kiểm tra hồ sơ mới/cũ, mã hết hạn, rollback và hai yêu cầu cùng CCCD. Migration V2 lưu hash/hạn mã trên `patient`; API lịch sử khám sẽ được mở ở M04/M05.
+Ghi nhận M01.03: đăng ký công khai trả 409 và không tạo tài khoản khi hồ sơ cần đối chiếu; RECEPTIONIST cấp mã một lần sau kiểm tra trực tiếp. `PatientRegistrationApiTest` kiểm tra CSRF, role; `PatientRegistrationDatabaseIntegrationTest` chạy trên MySQL riêng kiểm tra hồ sơ mới/cũ, mã hết hạn, rollback và hai yêu cầu cùng CCCD. Migration V2 lưu hash/hạn mã trên `patient`; API lịch sử cá nhân được mở ở M04.05.
 
 ### M01.04 — Thông tin cá nhân và mật khẩu
 
@@ -433,11 +433,11 @@ Giữ lịch sử khám cũ và gắn nó với đúng chủ tài khoản.
 
 **Kết quả nghiệm thu**
 
-- [ ] Sau liên kết, bệnh nhân thấy các lượt trước khi đăng ký và các lượt mới trong cùng hồ sơ.
+- [x] Sau liên kết, bệnh nhân thấy các lượt trước khi đăng ký và các lượt mới trong cùng hồ sơ.
 - [x] Thông tin chưa đủ xác minh hoặc hồ sơ đã gắn tài khoản được xử lý theo quy trình đã chốt.
 - [x] Hai giao dịch đồng thời không chiếm cùng hồ sơ, lỗi liên kết rollback cùng thao tác tạo tài khoản.
 
-Ghi nhận M04.02: Luồng đối chiếu dùng API M01.03 và cập nhật hồ sơ M04.01. `PatientRegistrationDatabaseIntegrationTest` kiểm tra hồ sơ thiếu/sai CCCD, cấp mã sau khi sửa đúng hồ sơ, hồ sơ đã liên kết, mã hết hạn, hai đăng ký mới cạnh tranh và hai đăng ký cùng mã xác minh cạnh tranh; giao dịch thua không để lại tài khoản. Tiêu chí lịch sử cũ và mới sẽ được kiểm tra cùng API M04.05.
+Ghi nhận M04.02: Luồng đối chiếu dùng API M01.03 và cập nhật hồ sơ M04.01. `PatientRegistrationDatabaseIntegrationTest` kiểm tra hồ sơ thiếu/sai CCCD, cấp mã sau khi sửa đúng hồ sơ, hồ sơ đã liên kết, mã hết hạn, hai đăng ký mới cạnh tranh và hai đăng ký cùng mã xác minh cạnh tranh; giao dịch thua không để lại tài khoản. `PatientHistoryDatabaseIntegrationTest` của M04.05 xác nhận lượt tạo trước đăng ký và lượt tạo sau liên kết cùng xuất hiện cho một patient ID.
 
 ### M04.03 — Tiếp nhận người có hẹn và người đến trực tiếp
 
@@ -477,7 +477,7 @@ Danh sách chờ có thứ tự rõ ràng và dữ liệu lượt đến đượ
 - [x] NOT_COMPLETED và VOIDED yêu cầu lý do, tiếp đón không sửa nội dung chuyên môn.
 - [x] Lượt đã phát sinh đơn hoặc phiếu kho được xử lý theo điều kiện đã chốt, thống kê vẫn tính NOT_COMPLETED và loại VOIDED.
 
-Ghi nhận M04.04: `ReceptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra hai khung cùng phòng cấp số đồng thời, số VOIDED không tái dùng, NOT_COMPLETED giữ lượt thực tế, VOIDED loại khỏi sức chứa, đồng bộ lịch hẹn, chặn VOIDED khi đã có đơn thuốc. `ReceptionVisitApiTest` kiểm tra lý do, role và CSRF. Phòng khác hoặc ngày khác dùng khóa phạm vi riêng nhờ bộ đếm MAX theo `(room_id, queue_date)`; ràng buộc UNIQUE trong V1 là lớp chặn cuối. Không có migration mới.
+Ghi nhận M04.04: `ReceptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra hai khung cùng phòng cấp số đồng thời, số VOIDED không tái dùng, NOT_COMPLETED giữ lượt thực tế, VOIDED loại khỏi sức chứa, đồng bộ lịch hẹn, chặn VOIDED khi đã có đơn thuốc. `ReceptionVisitApiTest` kiểm tra lý do, role và CSRF. Khóa theo phòng; bộ đếm MAX theo `(room_id, queue_date)` cho dãy số riêng từng ngày; ràng buộc UNIQUE trong V1 là lớp chặn cuối. Không có migration mới.
 
 ### M04.05 — Tra cứu lịch sử cá nhân
 
@@ -492,8 +492,10 @@ Bệnh nhân tra cứu được toàn bộ lịch sử thuộc hồ sơ đã li�
 
 **Kết quả nghiệm thu**
 
-- [ ] Kết quả gồm dữ liệu trước và sau khi có tài khoản, theo chính sách hiển thị trạng thái đã chốt.
-- [ ] Thay ID lượt, đơn hoặc patient trong URL/yêu cầu không đọc được dữ liệu người khác.
+- [x] Kết quả gồm dữ liệu trước và sau khi có tài khoản, theo chính sách hiển thị trạng thái đã chốt.
+- [x] Thay ID lượt, đơn hoặc patient trong URL/yêu cầu không đọc được dữ liệu người khác.
+
+Ghi nhận M04.05: `PatientHistoryDatabaseIntegrationTest` trên MySQL riêng tạo lượt cũ trước liên kết, cấp mã xác minh/đăng ký, tạo lượt mới, xác nhận phân trang/lọc ngày, kết quả, đơn ISSUED, chặn đơn DRAFT và ID của patient khác. `PatientHistoryApiTest` kiểm tra PATIENT-only và `Cache-Control: no-store`. M05 cung cấp hợp đồng đọc lượt/đơn, M06 cung cấp tên và đơn vị thuốc. Không có migration mới.
 
 ## 8. M05 — Khám ngoại trú và kê đơn
 

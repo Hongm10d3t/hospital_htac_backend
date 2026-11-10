@@ -6,4 +6,4 @@ Nếu hồ sơ thiếu CCCD, `POST /api/v1/reception/patients/{id}/registration-
 
 Người bệnh gửi `POST /api/v1/public/auth/register` kèm `verificationToken` trong 15 phút. Tạo tài khoản và liên kết `patient.user_id` cùng một giao dịch. Khóa hồ sơ khi liên kết; chỉ một yêu cầu đồng thời thành công, yêu cầu còn lại rollback cả tài khoản. Hồ sơ đã liên kết không được cấp mã mới và không được gắn thêm tài khoản. Mã bệnh nhân và ID hồ sơ giữ nguyên, nên các lượt khám cũ tiếp tục trỏ đến hồ sơ này.
 
-M04.05 kiểm tra việc hiển thị lượt cũ và lượt mới sau khi liên kết; tiêu chí đó còn mở cho đến khi có API lịch sử và kiểm thử xuyên luồng.
+M04.05 kiểm tra việc hiển thị lượt cũ và lượt mới sau khi liên kết bằng API lịch sử cá nhân; cả hai vẫn dùng một `patient.id`.
