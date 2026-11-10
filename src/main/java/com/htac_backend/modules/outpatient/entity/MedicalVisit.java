@@ -95,6 +95,20 @@ public class MedicalVisit extends AuditedEntity {
         startedAt = now;
     }
 
+    public void updateClinical(String clinicalNotes, String diagnosisCode, String diagnosis,
+            String treatmentPlan, LocalDate followUpDate) {
+        this.clinicalNotes = clinicalNotes;
+        this.diagnosisCode = diagnosisCode;
+        this.diagnosis = diagnosis;
+        this.treatmentPlan = treatmentPlan;
+        this.followUpDate = followUpDate;
+    }
+
+    public void complete(Instant now) {
+        status = VisitStatus.COMPLETED;
+        completedAt = now;
+    }
+
     public void notComplete(String reason) {
         status = VisitStatus.NOT_COMPLETED;
         outcomeReason = reason;

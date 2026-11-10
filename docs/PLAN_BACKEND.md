@@ -393,9 +393,9 @@ Trạng thái lịch hẹn phản ánh quá trình xử lý và kết nối đú
 
 - [x] Xác nhận lưu đúng nhân viên/thời điểm, kết thúc NOT_COMPLETED yêu cầu lý do và thời điểm đóng.
 - [x] Hẹn chưa được tiếp nhận không tạo medical_visit hoặc được tính vào lượt đến.
-- [ ] Cập nhật cuối từ quy trình khám và thao tác tiếp đón không ghi đè trạng thái trái quy tắc khi chạy đồng thời.
+- [x] Cập nhật cuối từ quy trình khám và thao tác tiếp đón không ghi đè trạng thái trái quy tắc khi chạy đồng thời.
 
-Ghi nhận M03.04: `AppointmentLifecycleDatabaseIntegrationTest` trên MySQL riêng kiểm tra quyền lịch cá nhân, xác nhận, liên hệ từ tài khoản, hoàn tất theo lượt, NOT_COMPLETED và hai cập nhật kết quả cuối chạy đồng thời; `ReceptionAppointmentApiTest` kiểm tra role/CSRF. `mvnw.cmd test`: 75 kiểm thử thành công. Hợp đồng nội bộ `completeFromVisit` và `notCompleteFromVisit` đã có, nhưng tiêu chí cuối còn mở đến khi M05 có quy trình cập nhật lượt khám thật để kiểm thử xuyên module.
+Ghi nhận M03.04: `AppointmentLifecycleDatabaseIntegrationTest` trên MySQL riêng kiểm tra quyền lịch cá nhân, xác nhận, liên hệ từ tài khoản, hoàn tất theo lượt, NOT_COMPLETED và hai cập nhật kết quả cuối chạy đồng thời; `ReceptionAppointmentApiTest` kiểm tra role/CSRF. M05.02 kiểm thử thêm lượt khám thật hoàn tất đồng thời với tiếp đón đóng lịch: trạng thái lịch không bị ghi đè và cùng giao dịch với lượt.
 
 ## 7. M04 — Hồ sơ bệnh nhân và tiếp đón
 
@@ -533,9 +533,11 @@ Lượt khám có kết quả chuyên môn và trạng thái kết thúc đầy 
 
 **Kết quả nghiệm thu**
 
-- [ ] Hoàn tất thiếu chẩn đoán bị từ chối, bỏ dở thiếu lý do bị từ chối.
-- [ ] Lượt và lịch hẹn liên quan nhất quán sau kết thúc hoặc khi xảy ra lỗi giữa giao dịch.
-- [ ] Ngày khuyến nghị tái khám được lưu/hiển thị và không phát sinh suất giữ chỗ mới.
+- [x] Hoàn tất thiếu chẩn đoán bị từ chối, bỏ dở thiếu lý do bị từ chối.
+- [x] Lượt và lịch hẹn liên quan nhất quán sau kết thúc hoặc khi xảy ra lỗi giữa giao dịch.
+- [x] Ngày khuyến nghị tái khám được lưu/hiển thị và không phát sinh suất giữ chỗ mới.
+
+Ghi nhận M05.02: `ClinicalVisitDatabaseIntegrationTest` trên MySQL riêng kiểm tra thiếu chẩn đoán/lý do, lưu ghi nhận và ngày tái khám, đồng bộ COMPLETED/NOT_COMPLETED sang hẹn, rollback lượt khi lịch đã có kết quả trái ngược, hai kết quả cuối đồng thời và bác sĩ hoàn tất cùng lúc tiếp đón đóng lịch. `DoctorVisitApiTest` kiểm tra role, CSRF và validation. Không có migration mới.
 
 ### M05.03 — Soạn và phát hành đơn thuốc
 

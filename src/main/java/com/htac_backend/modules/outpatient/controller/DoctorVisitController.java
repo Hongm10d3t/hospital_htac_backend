@@ -3,15 +3,21 @@ package com.htac_backend.modules.outpatient.controller;
 import com.htac_backend.modules.outpatient.dto.DoctorVisitResponse;
 import com.htac_backend.modules.outpatient.dto.PatientVisitDetail;
 import com.htac_backend.modules.outpatient.dto.PatientVisitSummary;
+import com.htac_backend.modules.outpatient.dto.UpdateClinicalVisitRequest;
+import com.htac_backend.modules.outpatient.dto.NotCompleteVisitRequest;
+import com.htac_backend.modules.outpatient.service.ClinicalVisitService;
 import com.htac_backend.modules.outpatient.service.DoctorVisitService;
 import com.htac_backend.modules.scheduling.dto.ClinicSlotResponse;
 import com.htac_backend.shared.api.PageQuery;
 import com.htac_backend.shared.api.PageResponse;
 import java.time.LocalDate;
 import java.util.Set;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/doctor")
 public class DoctorVisitController {
     private final DoctorVisitService visits;
+    private final ClinicalVisitService clinical;
 
-    public DoctorVisitController(DoctorVisitService visits) {
+    public DoctorVisitController(DoctorVisitService visits, ClinicalVisitService clinical) {
         this.visits = visits;
+        this.clinical = clinical;
     }
 
     @GetMapping("/slots")
@@ -49,6 +57,23 @@ public class DoctorVisitController {
     @PostMapping("/visits/{visitId}/start")
     public DoctorVisitResponse start(@PathVariable Long visitId) {
         return visits.start(visitId);
+    }
+
+    @PutMapping("/visits/{visitId}/clinical")
+    public DoctorVisitResponse updateClinical(@PathVariable Long visitId,
+            @Valid @RequestBody UpdateClinicalVisitRequest request) {
+        return clinical.update(visitId, request);
+    }
+
+    @PostMapping("/visits/{visitId}/complete")
+    public DoctorVisitResponse complete(@PathVariable Long visitId) {
+        return clinical.complete(visitId);
+    }
+
+    @PostMapping("/visits/{visitId}/not-complete")
+    public DoctorVisitResponse notComplete(@PathVariable Long visitId,
+            @Valid @RequestBody NotCompleteVisitRequest request) {
+        return clinical.notComplete(visitId, request.reason());
     }
 
     @GetMapping("/visits/{visitId}/history")

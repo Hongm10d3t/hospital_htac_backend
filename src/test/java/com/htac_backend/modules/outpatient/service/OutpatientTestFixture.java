@@ -25,6 +25,7 @@ final class OutpatientTestFixture implements AutoCloseable {
     final long roomB;
     final UserAccount doctorA;
     final UserAccount doctorB;
+    final UserAccount receptionist;
     final long slotA;
     final long slotB;
     final long historicSlot;
@@ -47,6 +48,8 @@ final class OutpatientTestFixture implements AutoCloseable {
                 "Synthetic doctor A", "0000000000", AccountRole.DOCTOR));
         doctorB = accounts.saveAndFlush(new UserAccount("b" + tag, "{noop}unused",
                 "Synthetic doctor B", "0000000000", AccountRole.DOCTOR));
+        receptionist = accounts.saveAndFlush(new UserAccount("e" + tag, "{noop}unused",
+                "Synthetic receptionist", "0000000000", AccountRole.RECEPTIONIST));
         jdbc.update("INSERT INTO doctor_profile (user_id, specialty_id) VALUES (?, ?), (?, ?)",
                 doctorA.getId(), specialtyId, doctorB.getId(), specialtyId);
         LocalDate today = LocalDate.now(ZONE);
@@ -134,5 +137,6 @@ final class OutpatientTestFixture implements AutoCloseable {
         jdbc.update("DELETE FROM specialty WHERE id = ?", specialtyId);
         accounts.deleteById(doctorA.getId());
         accounts.deleteById(doctorB.getId());
+        accounts.deleteById(receptionist.getId());
     }
 }

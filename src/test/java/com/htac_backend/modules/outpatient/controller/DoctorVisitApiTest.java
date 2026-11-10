@@ -3,6 +3,7 @@ package com.htac_backend.modules.outpatient.controller;
 import com.htac_backend.modules.administration.repository.UserAccountRepository;
 import com.htac_backend.modules.administration.service.DatabaseUserDetailsService;
 import com.htac_backend.modules.outpatient.service.DoctorVisitService;
+import com.htac_backend.modules.outpatient.service.ClinicalVisitService;
 import com.htac_backend.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DoctorVisitController.class)
@@ -24,6 +26,7 @@ class DoctorVisitApiTest {
     @Autowired MockMvc mvc;
     @MockitoBean UserAccountRepository accounts;
     @MockitoBean DoctorVisitService visits;
+    @MockitoBean ClinicalVisitService clinical;
 
     @Test
     void doctorRoleAndCsrfAreRequired() throws Exception {
@@ -36,6 +39,16 @@ class DoctorVisitApiTest {
         mvc.perform(get("/api/v1/doctor/slots?size=101")
                         .with(user("doctor").roles("DOCTOR")))
                 .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/v1/doctor/visits/1/not-complete")
+                        .with(user("doctor").roles("DOCTOR")).with(csrf())
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"reason\":\"  \"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(put("/api/v1/doctor/visits/1/clinical")
+                        .with(user("patient").roles("PATIENT")).with(csrf())
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isForbidden());
         verifyNoInteractions(visits);
+        verifyNoInteractions(clinical);
     }
 }
