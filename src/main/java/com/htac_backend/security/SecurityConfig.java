@@ -93,6 +93,8 @@ public class SecurityConfig {
                 .hasRole("RECEPTIONIST")
                 .requestMatchers("/api/v1/reception/appointments", "/api/v1/reception/appointments/**")
                 .hasRole("RECEPTIONIST")
+                .requestMatchers("/api/v1/reception/visits", "/api/v1/reception/visits/**")
+                .hasRole("RECEPTIONIST")
                 .requestMatchers("/api/v1/reception/patients", "/api/v1/reception/patients/**")
                 .hasRole("RECEPTIONIST")
                 .anyRequest().denyAll());

@@ -51,6 +51,12 @@ public class SlotCapacityService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
+    public ClinicSlot lockForReception(Long slotId) {
+        return slots.findByIdForUpdate(slotId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy khung khám"));
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
     public SlotCapacity requireSpaceForReception(Long slotId, Long appointmentId) {
         ClinicSlot slot = slots.findByIdForUpdate(slotId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy khung khám"));

@@ -453,9 +453,11 @@ Ghi đầy đủ lượt bệnh nhân đã thực sự đến cho quy trình kh�
 
 **Kết quả nghiệm thu**
 
-- [ ] Một lịch hẹn có tối đa một lượt, gửi lại thao tác tiếp nhận không tạo lượt thứ hai.
-- [ ] Cả người có hẹn và trực tiếp đều xuất hiện trong danh sách chờ đúng phòng/bác sĩ.
-- [ ] Hai luồng tiếp nhận cạnh tranh sức chứa vẫn tuân theo giới hạn chung và không ghi dữ liệu dở dang.
+- [x] Một lịch hẹn có tối đa một lượt, gửi lại thao tác tiếp nhận không tạo lượt thứ hai.
+- [x] Cả người có hẹn và trực tiếp đều xuất hiện trong danh sách chờ đúng phòng/bác sĩ.
+- [x] Hai luồng tiếp nhận cạnh tranh sức chứa vẫn tuân theo giới hạn chung và không ghi dữ liệu dở dang.
+
+Ghi nhận M04.03: `ReceptionDatabaseIntegrationTest` trên MySQL riêng kiểm tra tiếp nhận hẹn gửi lặp, trực tiếp, danh sách chờ, cạnh tranh hai lượt trực tiếp và hẹn với trực tiếp. `ReceptionVisitApiTest` kiểm tra role, CSRF, validation. M05 sở hữu entity/repository/service ghi `medical_visit`; M04 điều phối khóa slot, appointment, phòng và giao dịch READ_COMMITTED. Không có migration mới.
 
 ### M04.04 — Cấp số thứ tự và xử lý lượt tiếp đón
 
