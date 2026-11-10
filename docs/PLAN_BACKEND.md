@@ -615,8 +615,10 @@ Mọi biến động và quyết định cấp phát truy được đến lô c�
 
 **Kết quả nghiệm thu**
 
-- [ ] Cùng thuốc không tạo trùng số lô, BLOCKED yêu cầu lý do.
-- [ ] Lô khóa/hết hạn bị loại khỏi nguồn cấp, có kiểm tra ở ngày sát hạn và ngày hết hạn theo quy tắc đã chốt.
+- [x] Cùng thuốc không tạo trùng số lô, BLOCKED yêu cầu lý do.
+- [x] Lô khóa/hết hạn bị loại khỏi nguồn cấp, có kiểm tra ở ngày sát hạn và ngày hết hạn theo quy tắc đã chốt.
+
+Ghi nhận M06.02: `MedicineBatchDatabaseIntegrationTest` trên MySQL riêng kiểm tra số lô trùng, lý do khóa, lô ACTIVE sát hạn, BLOCKED và hết hạn đúng ngày; `MedicineBatchApiTest` kiểm tra role, CSRF và validation. Điều kiện xét cấp được dùng lại ở M06.06. API: `API_M06_02_BATCHES.md`. Không có migration mới.
 
 ### M06.03 — Cấu trúc phiếu và cơ chế ghi sổ
 
