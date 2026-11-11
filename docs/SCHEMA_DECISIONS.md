@@ -27,6 +27,8 @@ Ngày 07/11/2026. Tài liệu này chốt cách triển khai cho bản backend h
 
 Migration V3 bổ sung `credential_version` trên `user_account` và bảng audit bảo mật `account_password_reset_audit` do M01 sở hữu. Bảng audit này nằm ngoài 18 bảng nghiệp vụ nền; lưu người đặt lại, tài khoản đích, phương thức đối chiếu và thời điểm, không lưu mật khẩu. Thay đổi mật khẩu tăng phiên bản để vô hiệu hóa session cũ.
 
+Migration V4 bổ sung `review_note` và `close_note` trên `purchase_request` do M07 sở hữu. `note` giữ căn cứ lập; lý do từ chối và lý do kết thúc được lưu riêng để không ghi đè lịch sử quyết định.
+
 Mỗi bảng có `created_at`, `updated_at` bắt buộc và `created_by`, `updated_by` cho phép NULL, FK đến `user_account.id`. Không xóa cứng tài khoản hoặc dữ liệu nghiệp vụ đã được tham chiếu. Cột `medical_visit.room_id` và `queue_date` là dữ liệu chốt lúc tiếp nhận để MySQL bảo vệ số thứ tự duy nhất theo phòng/ngày; M04/M05 phải đối chiếu `room_id` với `clinic_slot.room_id`. Số thứ tự VOIDED không tái sử dụng.
 
 ## Kiểu dữ liệu và ngày nghiệp vụ

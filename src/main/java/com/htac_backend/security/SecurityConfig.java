@@ -3,9 +3,11 @@ package com.htac_backend.security;
 import com.htac_backend.modules.administration.repository.UserAccountRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import org.springframework.http.HttpMethod;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -67,6 +69,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Profile("!dev-no-auth")
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityContextRepository contexts,
             CsrfTokenRepository csrfTokens, UserAccountRepository accounts,
@@ -90,6 +93,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/patients/me", "/api/v1/patients/me/**").hasRole("PATIENT")
                 .requestMatchers("/api/v1/doctor/**").hasRole("DOCTOR")
                 .requestMatchers("/api/v1/pharmacy/**").hasRole("PHARMACIST")
+                .requestMatchers("/api/v1/procurement/purchase-requests/*/approve",
+                        "/api/v1/procurement/purchase-requests/*/reject").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/procurement/**")
+                .hasAnyRole("PHARMACIST", "ADMIN")
+                .requestMatchers("/api/v1/procurement/**").hasRole("PHARMACIST")
+                .requestMatchers(HttpMethod.GET, "/api/v1/reports/appointments",
+                        "/api/v1/reports/visits").hasAnyRole("ADMIN", "RECEPTIONIST", "DOCTOR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/reports/**")
+                .hasAnyRole("ADMIN", "PHARMACIST")
                 .requestMatchers("/api/v1/reception/patients/registration-candidates",
                         "/api/v1/reception/patients/*/registration-verification")
                 .hasRole("RECEPTIONIST")
@@ -126,5 +138,13 @@ public class SecurityConfig {
         http.formLogin(form -> form.disable());
         http.addFilterBefore(new ActiveAccountFilter(accounts, errors), AuthorizationFilter.class);
         return http.build();
+    }
+    @Bean
+    @Profile("dev-no-auth")
+    SecurityFilterChain devNoAuthFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .build();
     }
 }

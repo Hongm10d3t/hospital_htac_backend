@@ -13,6 +13,7 @@ import com.htac_backend.modules.pharmacy.repository.MedicineBatchRepository;
 import com.htac_backend.modules.pharmacy.repository.StockDocumentItemRepository;
 import com.htac_backend.modules.pharmacy.repository.StockDocumentRepository;
 import com.htac_backend.modules.pharmacy.repository.SupplierRepository;
+import com.htac_backend.modules.procurement.service.PurchaseReceiptValidationService;
 import com.htac_backend.shared.api.BusinessException;
 import com.htac_backend.shared.api.InvalidRequestException;
 import com.htac_backend.shared.api.NotFoundException;
@@ -46,6 +47,7 @@ public class StockDocumentService {
     private final PatientReturnReferenceService returnReferences;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
+    private final PurchaseReceiptValidationService procurement;
 
     public StockDocumentService(StockDocumentRepository documents,
             StockDocumentItemRepository items, MedicineBatchRepository batches,
@@ -54,7 +56,7 @@ public class StockDocumentService {
             DispensedQuantityService dispensed, PrescriptionDispensingStateService prescriptionState,
             PatientReturnReferenceService returnReferences,
             CurrentPharmacistActor actor,
-            AccountRoleLookupService accounts) {
+            AccountRoleLookupService accounts, PurchaseReceiptValidationService procurement) {
         this.documents = documents;
         this.items = items;
         this.batches = batches;
@@ -67,6 +69,7 @@ public class StockDocumentService {
         this.returnReferences = returnReferences;
         this.actor = actor;
         this.accounts = accounts;
+        this.procurement = procurement;
     }
 
     @PreAuthorize("hasRole('PHARMACIST')")
@@ -110,6 +113,12 @@ public class StockDocumentService {
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy lô thuốc")));
         List<StockDocumentItem> lines = items.findDetailsByDocumentId(id);
         validate(document, lines);
+        if (document.getType().equals("RECEIPT") && document.getPurchaseRequestId() != null) {
+            Map<Long, BigDecimal> incoming = new HashMap<>();
+            lines.forEach(line -> incoming.merge(line.getBatch().getMedicine().getId(),
+                    line.getQuantity(), BigDecimal::add));
+            procurement.check(document.getPurchaseRequestId(), document.getSupplierId(), incoming);
+        }
         if (prescription != null) {
             if (document.getType().equals("DISPENSE")) {
                 validateDispense(document, lines, prescription);
@@ -233,7 +242,7 @@ public class StockDocumentService {
         boolean prescriptionType = document.getType().equals("DISPENSE")
                 || document.getType().equals("PATIENT_RETURN");
         if ((prescriptionType != (document.getPrescriptionId() != null))
-                || document.getPurchaseRequestId() != null) {
+                || (document.getPurchaseRequestId() != null && !document.getType().equals("RECEIPT"))) {
             throw new InvalidRequestException("Loại phiếu này không gắn đơn hoặc đề xuất nhập");
         }
         if (document.getType().equals("DISPENSE")

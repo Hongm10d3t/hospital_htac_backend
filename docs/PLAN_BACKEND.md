@@ -799,8 +799,8 @@ Nhu cầu nhập thuốc được lập thành dữ liệu có thể phê duyệ
 
 **Kết quả nghiệm thu**
 
-- [ ] Thuốc trùng, lượng không hợp lệ và chuyển trạng thái trái điều kiện bị chặn.
-- [ ] Dược sĩ tạo/gửi được đề xuất và không tự thực hiện bước phê duyệt.
+- [x] Thuốc trùng, lượng không hợp lệ và chuyển trạng thái trái điều kiện bị chặn.
+- [x] Dược sĩ tạo/gửi được đề xuất và không tự thực hiện bước phê duyệt.
 
 ### M07.02 — Duyệt hoặc từ chối một bước
 
@@ -816,8 +816,8 @@ Có quyết định nhập rõ ràng làm căn cứ cho ghi nhận hàng.
 
 **Kết quả nghiệm thu**
 
-- [ ] Chỉ ADMIN duyệt/từ chối, thông tin người và thời điểm phản ánh quyết định thành công.
-- [ ] Hai quyết định cạnh tranh không ghi đè lẫn nhau, sửa lượng đã duyệt bị chặn.
+- [x] Chỉ ADMIN duyệt/từ chối, thông tin người và thời điểm phản ánh quyết định thành công.
+- [x] Hai quyết định cạnh tranh không ghi đè lẫn nhau, sửa lượng đã duyệt bị chặn.
 
 ### M07.03 — Theo dõi đặt hàng và kết thúc
 
@@ -833,9 +833,9 @@ Theo dõi được tiến trình từ đề xuất đã duyệt đến lúc dừ
 
 **Kết quả nghiệm thu**
 
-- [ ] Ngày đặt và dự kiến nhận được kiểm tra theo quy tắc thời gian đã thống nhất.
-- [ ] Đóng khi thiếu hàng có lý do, đề xuất đã đóng bị kiểm tra khi yêu cầu ghi sổ nhận thêm.
-- [ ] Lịch sử nhận đã ghi sổ vẫn đối chiếu được sau khi kết thúc theo dõi.
+- [x] Ngày đặt và dự kiến nhận được kiểm tra theo quy tắc thời gian đã thống nhất.
+- [x] Đóng khi thiếu hàng có lý do, đề xuất đã đóng bị kiểm tra khi yêu cầu ghi sổ nhận thêm.
+- [x] Lịch sử nhận đã ghi sổ vẫn đối chiếu được sau khi kết thúc theo dõi.
 
 ### M07.04 — Nhận hàng nhiều đợt và đối chiếu lượng duyệt
 
@@ -851,9 +851,15 @@ Nhận hàng theo đề xuất kiểm soát được cả nhiều lô và nhiề
 
 **Kết quả nghiệm thu**
 
-- [ ] Ví dụ duyệt 100, nhận 40 rồi 60 thì đã nhận 100, còn thiếu 0. Phiếu nhận vượt bị từ chối.
-- [ ] Sai nhà cung cấp, sai thuốc, đề xuất chưa duyệt hoặc đã đóng bị từ chối theo điều kiện đã chốt.
-- [ ] Phiếu nháp không cộng lượng đã nhận, hai phiếu đồng thời tuân giới hạn và đối chiếu khớp tồn kho.
+- [x] Ví dụ duyệt 100, nhận 40 rồi 60 thì đã nhận 100, còn thiếu 0. Phiếu nhận vượt bị từ chối.
+- [x] Sai nhà cung cấp, sai thuốc, đề xuất chưa duyệt hoặc đã đóng bị từ chối theo điều kiện đã chốt.
+- [x] Phiếu nháp không cộng lượng đã nhận, hai phiếu đồng thời tuân giới hạn và đối chiếu khớp tồn kho.
+
+Ghi nhận M07.01–M07.04: `PurchaseRequestDatabaseIntegrationTest` chạy trên MySQL kiểm thử riêng xác nhận
+trùng dòng/lượng sai, quyền người lập, gửi lặp, duyệt/từ chối, hai quyết định cạnh tranh,
+khóa lượng sau duyệt, ngày đặt, nhận 40+60, nguồn/thuốc sai, đóng khi còn phiếu nháp hoặc thiếu hàng,
+hai phiếu ghi sổ cạnh tranh và đối chiếu tồn kho. `PurchaseRequestApiTest` kiểm tra role, CSRF và DTO.
+API: `API_M07_PURCHASE_REQUESTS.md`; migration V4 tách ghi chú duyệt và kết thúc.
 
 ## 11. M08 — Báo cáo và thống kê
 
@@ -871,9 +877,9 @@ Người vận hành theo dõi được lịch đăng ký và số người th�
 
 **Kết quả nghiệm thu**
 
-- [ ] Dữ liệu hẹn chưa đến chỉ xuất hiện ở số hẹn, NOT_COMPLETED được tính lượt đến, VOIDED được loại.
-- [ ] Join với nhiều đơn thuốc không làm nhân số lượt, ca qua ranh giới ngày được xếp đúng ngày nghiệp vụ.
-- [ ] DOCTOR chỉ nhận báo cáo công việc thuộc phạm vi được phân công.
+- [x] Dữ liệu hẹn chưa đến chỉ xuất hiện ở số hẹn, NOT_COMPLETED được tính lượt đến, VOIDED được loại.
+- [x] Join với nhiều đơn thuốc không làm nhân số lượt, ca qua ranh giới ngày được xếp đúng ngày nghiệp vụ.
+- [x] DOCTOR chỉ nhận báo cáo công việc thuộc phạm vi được phân công.
 
 ### M08.02 — Đối chiếu kê, cấp và chưa nhận
 
@@ -889,9 +895,9 @@ Người vận hành theo dõi được lịch đăng ký và số người th�
 
 **Kết quả nghiệm thu**
 
-- [ ] Một dòng kê được cấp qua nhiều lô/đợt vẫn có tổng đúng, phiếu trả/chuyển không bị cộng vào thực cấp.
-- [ ] Hiện trạng chưa nhận được thể hiện là dữ liệu gần nhất và không bị cộng qua các lần cập nhật.
-- [ ] Lượng chưa nhận bằng 0 ở đơn chưa kiểm tra không được diễn giải thành đã cấp đủ.
+- [x] Một dòng kê được cấp qua nhiều lô/đợt vẫn có tổng đúng, phiếu trả/chuyển không bị cộng vào thực cấp.
+- [x] Hiện trạng chưa nhận được thể hiện là dữ liệu gần nhất và không bị cộng qua các lần cập nhật.
+- [x] Lượng chưa nhận bằng 0 ở đơn chưa kiểm tra không được diễn giải thành đã cấp đủ.
 
 ### M08.03 — Báo cáo kho và đề xuất nhập
 
@@ -907,8 +913,15 @@ Quản trị và dược sĩ sử dụng số liệu nhất quán với màn hì
 
 **Kết quả nghiệm thu**
 
-- [ ] Báo cáo khớp số dư và chi tiết phiếu, chuyển nội bộ không làm sai tổng tồn toàn viện.
-- [ ] Lượng nhận/còn thiếu khớp từng đề xuất và xử lý đúng phiếu nháp, phiếu bị hủy theo quy tắc đã chốt.
+- [x] Báo cáo khớp số dư và chi tiết phiếu, chuyển nội bộ không làm sai tổng tồn toàn viện.
+- [x] Lượng nhận/còn thiếu khớp từng đề xuất và xử lý đúng phiếu nháp, phiếu bị hủy theo quy tắc đã chốt.
+
+Ghi nhận M08.01–M08.03: `ReportingDatabaseIntegrationTest` trên MySQL riêng tạo hẹn chưa đến,
+lượt NOT_COMPLETED/VOIDED, nhiều đơn trên một lượt, ranh giới ngày bệnh viện, cấp nhiều lô và qua
+hai ngày, cập nhật phần chưa nhận, các loại phiếu kho và đề xuất có phiếu POSTED/DRAFT/CANCELLED.
+Kiểm tra phạm vi DOCTOR, đối chiếu tồn với M06, lượng nhận với M07 và tổng chuyển nội bộ bằng 0.
+`ReportingApiTest` kiểm tra role, phương thức và tham số phân trang/sort. API: `API_M08_REPORTS.md`.
+Không có migration mới.
 - [ ] Role ngoài phạm vi bị từ chối truy cập báo cáo dược.
 
 ## 12. M09 — Dữ liệu demo và học máy

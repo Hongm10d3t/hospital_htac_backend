@@ -9,5 +9,10 @@ import java.util.List;
 
 public record ReceiptStockRequest(@NotNull OffsetDateTime occurredAt,
         @NotBlank String stockLocation, @NotBlank String stockBucket,
-        @NotNull Long supplierId, String note,
-        @NotEmpty List<@Valid InboundStockLineRequest> items) { }
+        @NotNull Long supplierId, Long purchaseRequestId, String note,
+        @NotEmpty List<@Valid InboundStockLineRequest> items) {
+    public ReceiptStockRequest(OffsetDateTime occurredAt, String stockLocation, String stockBucket,
+            Long supplierId, String note, List<InboundStockLineRequest> items) {
+        this(occurredAt, stockLocation, stockBucket, supplierId, null, note, items);
+    }
+}

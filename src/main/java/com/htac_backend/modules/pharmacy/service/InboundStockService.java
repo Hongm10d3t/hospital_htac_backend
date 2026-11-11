@@ -8,12 +8,16 @@ import com.htac_backend.modules.pharmacy.dto.ReceiptStockRequest;
 import com.htac_backend.modules.pharmacy.dto.StockDocumentResponse;
 import com.htac_backend.modules.pharmacy.repository.StockDocumentItemRepository;
 import com.htac_backend.modules.pharmacy.repository.SupplierRepository;
+import com.htac_backend.modules.procurement.service.PurchaseReceiptValidationService;
 import com.htac_backend.shared.api.BusinessException;
 import com.htac_backend.shared.api.InvalidRequestException;
 import com.htac_backend.shared.api.NotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.HashMap;
+import java.math.BigDecimal;
+import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -27,15 +31,20 @@ public class InboundStockService {
     private final SupplierRepository suppliers;
     private final CurrentPharmacistActor actor;
     private final AccountRoleLookupService accounts;
+    private final ProcurementCatalogReferenceService catalog;
+    private final PurchaseReceiptValidationService procurement;
 
     public InboundStockService(StockDraftFactory factory, StockDocumentItemRepository items,
             SupplierRepository suppliers, CurrentPharmacistActor actor,
-            AccountRoleLookupService accounts) {
+            AccountRoleLookupService accounts, ProcurementCatalogReferenceService catalog,
+            PurchaseReceiptValidationService procurement) {
         this.factory = factory;
         this.items = items;
         this.suppliers = suppliers;
         this.actor = actor;
         this.accounts = accounts;
+        this.catalog = catalog;
+        this.procurement = procurement;
     }
 
     @PreAuthorize("hasRole('PHARMACIST')")
@@ -67,9 +76,17 @@ public class InboundStockService {
             throw new BusinessException("SUPPLIER_INACTIVE", "Nhà cung cấp đã ngừng hoạt động");
         }
         List<StockDraftFactory.DraftLine> lines = lines(body.items(), true);
+        if (body.purchaseRequestId() != null) {
+            Map<Long, Long> medicines = catalog.medicinesForBatches(
+                    lines.stream().map(StockDraftFactory.DraftLine::batchId).toList());
+            Map<Long, BigDecimal> incoming = new HashMap<>();
+            lines.forEach(line -> incoming.merge(medicines.get(line.batchId()),
+                    line.quantity(), BigDecimal::add));
+            procurement.check(body.purchaseRequestId(), body.supplierId(), incoming);
+        }
         var document = factory.create("RECEIPT", body.occurredAt().toInstant(),
                 body.stockLocation(), body.stockBucket(), null, null, body.supplierId(),
-                null, null, body.note(), lines);
+                null, body.purchaseRequestId(), body.note(), lines);
         return StockDocumentResponse.from(document, items.findDetailsByDocumentId(document.getId()));
     }
 

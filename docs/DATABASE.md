@@ -295,10 +295,12 @@ purchase_request — Dược sĩ lập, ADMIN duyệt một bước; lưu thêm 
 | status | varchar(15) | DRAFT, PENDING, APPROVED, REJECTED hoặc CANCELLED. |
 | reviewed_by | bigint | FK đến user_account. ADMIN duyệt hoặc từ chối. Cho phép NULL. |
 | reviewed_at | timestamptz | Thời điểm duyệt hoặc từ chối. Cho phép NULL. |
+| review_note | text | Giải thích quyết định duyệt hoặc từ chối. Bắt buộc khi từ chối. Cho phép NULL khi chưa quyết định hoặc duyệt không cần giải thích. |
 | ordered_at | timestamptz | Thời điểm đặt mua thực tế. Cho phép NULL khi chưa đặt. |
 | expected_delivery_date | date | Ngày dự kiến nhận thuốc. Cho phép NULL. |
 | closed_at | timestamptz | Thời điểm kết thúc theo dõi nhập hàng. Cho phép NULL. |
-| note | text | Lý do đề xuất, từ chối hoặc kết thúc khi chưa nhận đủ. Cho phép NULL nếu không cần giải thích. |
+| close_note | text | Giải thích kết thúc theo dõi; bắt buộc khi còn thiếu hàng. Cho phép NULL khi chưa đóng hoặc đã nhận đủ. |
+| note | text | Căn cứ lập đề xuất. Cho phép NULL khi còn DRAFT; bắt buộc trước khi gửi duyệt. |
 
 Bản gọn duyệt toàn bộ số lượng đề xuất. Cần đổi lượng thì sửa trước duyệt hoặc lập đề xuất mới. Một đề xuất có thể nhận qua nhiều phiếu RECEIPT; lượng đã nhận tính từ các phiếu hợp lệ, không lưu lặp lại.
 
